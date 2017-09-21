@@ -26,6 +26,7 @@ fs.readFile('../../dbaccess.json', function (err, logData)
         userProcessor.set(89765,ConfigdataObj.languages);
         Module2.extract(userProcessor,wikiCaller,ConfigdataObj,function()
         {
+            console.log("Ended");
                 //estrai da userProcessor e salva gli utenti di interesse
         });
     }); 
