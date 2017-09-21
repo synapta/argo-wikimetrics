@@ -8,7 +8,7 @@ fs.readFile('config.json', function (err, logData)
     if (err) throw err;
     var text = logData.toString();
     ConfigdataObj=JSON.parse(text);
-    console.log("Completed. Calling Module 1...")
+    console.log("Completed. Calling Module 1...");
     //UNLOCK WHEN DEVELOPED
     var step1Ris=Module1.load(ConfigdataObj);
    //Module1.loadAll(ConfigdataObj);

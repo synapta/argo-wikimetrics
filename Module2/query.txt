@@ -1,0 +1,3 @@
+select page_id from page where page_title in ("Organizzazione_mondiale_della_sanità", "Alessandro_Manzoni") and page_namespace=0;
+select t0.rev_user, t0.rev_user_text, t0.rev_len, t1.rev_len as old_len from revision t0, revision t1 
+where t0.rev_page=2719455 and t0.rev_parent_id=t1.rev_id and t0.rev_user!=0 and t0.rev_minor_edit!=1;

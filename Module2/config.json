@@ -1,0 +1,12 @@
+{
+	"filename": "File",
+	"languages": [
+        {"value": "EN"},
+        {"value": "DE"},
+        {"value": "IT"},
+        {"value": "FR"},
+        {"value": "RM"},
+		{"value": "ALS"}
+    ],
+    "filepath":"../../Samples/"
+}
