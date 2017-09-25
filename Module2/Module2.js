@@ -1,4 +1,4 @@
-const traductionLines=50;
+const traductionLines=200;
 var userProcessor;
 var wikiCaller=null;
 var ConfigDataObj;
@@ -8,6 +8,7 @@ var liner;
 var callbackEP;
 var DBAccess;
 var Client;
+var packnum=0;
 exports.extract=function(userProc,dBAccess,ConfigData,callbackEPx)
 {
     //STEP 1: open 1 language
@@ -24,6 +25,10 @@ exports.extract=function(userProc,dBAccess,ConfigData,callbackEPx)
     DBAccess=dBAccess;
     LangLoop();
 }
+var addslashes=function(str)
+{
+    return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');
+}
 var LangLoop=function()
 {    
     if(ConfigDataObj.languages.length>langIndex)
@@ -35,7 +40,15 @@ var LangLoop=function()
         var dbstring=ConfigDataObj.languages[langIndex].value.toLowerCase()+"wiki_p";
         console.log("Connecting to DBstring..."+dbstring);
         if(langIndex>0)
+        {
             wikiCaller.end();
+            packnum=0;//KEEP THIS
+            /*if(langIndex>0)
+            {
+                callbackEP();
+                return;
+            }*/
+        }    
         var clientopts=
         {
             host: DBAccess.host,
@@ -44,7 +57,7 @@ var LangLoop=function()
             port: DBAccess.port,
             db: dbstring
         };
-        console.log(clientopts);
+        //console.log(clientopts);
         wikiCaller=new Client(clientopts);
         console.log("Connected(?!)");
         LangExecute();
@@ -86,47 +99,71 @@ var TraductionExecute=function(line)
             RQ+=",";
         let lineascii=line.toString('ascii');
         lineascii=lineascii.substring(0,lineascii.length-1)
-        RQ+=("\""+decodeURI(lineascii.split("wiki/")[1]+"\""));
+        RQ+=("\""+addslashes(decodeURI(lineascii.split("wiki/")[1]))+"\"");
         i++;
     } while(i<traductionLines&&(line=liner.next()));
-    var query1="select page_id from page where page_title in (\"Ginevra\") and page_namespace=0";
-    wikiCaller.query(query1, 
+    var query1="select page_id from page where page_title in (";
+    var query2=") and page_namespace=0";
+    var queryX=query1+RQ+query2;
+    //!console.log(queryX);
+    wikiCaller.query(queryX, 
         function(err, rows) 
         {
             if (err)
                 throw err;
-            console.log(rows);
-            wikiCaller.end();
-            //UserTranslateExecution(rows);
-            throw new Error();
+            //!console.log(rows);
+            UserTranslateExecution(rows);
+            
         }
     );
-    /*Query(RQ,
-        function()
-        {
-            TraductionLoop();
-        }
-    )*/
 }
 var UserTranslateExecution=function(rows)
 {
     //monta la query numero due
-    var query2="";
+    query1="select t0.rev_user, t0.rev_user_text, t0.rev_len, ifnull(t1.rev_len,0) as old_len from revision t0, revision t1 where t0.rev_page in(";
+    query2=") and t0.rev_parent_id=t1.rev_id and t0.rev_user!=0 and t0.rev_minor_edit!=1;";
+    var RQ=rows[0].page_id;
+    for(var i=1;i<rows.length;i++)
+        RQ+=(", "+rows[i].page_id);
+    queryX=query1+RQ+query2;
     //eseguila
-    wikiCaller.query(query2, 
+    //!console.log(queryX);
+    wikiCaller.query(queryX, 
     function(err, rows) 
     {
         if (err)
             throw err;
-        console.log(rows);
         InsertUsersInProcessor(rows);
     }
 );
 }
 var InsertUsersInProcessor=function(rows)
 {
+    var UD;
+    var elen=0;
+    for(var i=1;i<rows.length;i++)
+    {
+        key=rows[i].rev_user_text;
+        if(!userProcessor.has(key))
+        {
+            UD=new Object();
+            UD.edits=0;
+            UD.maxEdit=0;
+            UD.name=rows[i].rev_user_text;
+        }
+        else
+            UD=userProcessor.get(key);
+        UD.edits+=1;
+        elen=Math.abs(rows[i].rev_len-rows[i].old_len);
+        if(UD.maxEdit<elen)
+            UD.maxEdit=elen;
+        userProcessor.set(key,UD);
+    }
+    packnum++;    
+    console.log("Packs completed: "+packnum);
     //calcola punteggi e inserisci utenti nella HT
     TraductionLoop();
+
 }
 var Query=function(RQ,callbackTE)
 {

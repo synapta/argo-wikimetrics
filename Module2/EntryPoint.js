@@ -1,6 +1,5 @@
 console.log("Loading Settings...")
 var fs = require('fs');
-
 var HashMap=require('hashmap');
 var Module2=require('./Module2');
 var userProcessor = new HashMap();
@@ -14,12 +13,27 @@ fs.readFile('../../dbaccess.json', function (err, logData)
         if (err) throw err;
         var text = logData.toString();
         ConfigdataObj=JSON.parse(text);
-        userProcessor.set(1,ConfigdataObj.filename);
-        userProcessor.set(89765,ConfigdataObj.languages);
         Module2.extract(userProcessor,dbAccess,ConfigdataObj,function()
         {
             console.log("Ended");
-                //estrai da userProcessor e salva gli utenti di interesse
+            users=userProcessor.values();
+            users.sort(function(a, b){return -a.edits+b.edits});
+            console.log(users);
+            //filter
+            filteredUsers=[];
+            var FUindex=0;
+            var Uindex=0;
+            for(Uindex=0;Uindex<users.length;Uindex++)
+            {
+                DU=users[Uindex];
+                if(DU.edits>50&&DU.maxEdit>300&&!DU.name.toLowerCase().includes("bot"))
+                {
+                    filteredUsers[FUindex]=DU;
+                    FUindex++;
+                }
+            }
+            console.log(filteredUsers);
+            throw new Error();
         });
     }); 
 });
