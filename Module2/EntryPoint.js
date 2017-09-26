@@ -8,7 +8,6 @@ fs.readFile('config.json', function (err, logData)
     if (err) throw err;
     var text = logData.toString();
     ConfigdataObj=JSON.parse(text);
-    console.log(ConfigdataObj);
     fs.readFile(ConfigdataObj.databaseconfig, function (err, logData) 
     {
         if (err) throw err;

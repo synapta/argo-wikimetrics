@@ -9,6 +9,7 @@ var callbackEP;
 var DBAccess;
 var Client;
 var packnum=0;
+var windows1252;
 exports.extract=function(userProc,dBAccess,ConfigData,callbackEPx)
 {
     //STEP 1: open 1 language
@@ -17,6 +18,7 @@ exports.extract=function(userProc,dBAccess,ConfigData,callbackEPx)
     //STEP 4: save results
     Client = require('mariasql');
     lineByLine = require('n-readlines');
+    windows1252 = require('windows-1252');
     userProcessor=userProc;
  
     ConfigDataObj=ConfigData;
@@ -43,11 +45,11 @@ var LangLoop=function()
         {
             wikiCaller.end();
             packnum=0;//KEEP THIS
-            /*if(langIndex>0)//FLAAAAAAAAAAAAAAAAAAAAG
+            if(langIndex>0)//FLAAAAAAAAAAAAAAAAAAAAG
             {
                 callbackEP();
                 return;
-            }*/
+            }
         }    
         var clientopts=
         {
@@ -149,7 +151,7 @@ var InsertUsersInProcessor=function(rows)
             UD=new Object();
             UD.edits=0;
             UD.maxEdit=0;
-            UD.name=rows[i].rev_user_text;
+            UD.name=windows1252.decode(rows[i].rev_user_text);
         }
         /*else
             UD=userProcessor.get(key);*/
