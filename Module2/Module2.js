@@ -43,11 +43,11 @@ var LangLoop=function()
         {
             wikiCaller.end();
             packnum=0;//KEEP THIS
-            if(langIndex>0)//FLAAAAAAAAAAAAAAAAAAAAG
+            /*if(langIndex>0)//FLAAAAAAAAAAAAAAAAAAAAG
             {
                 callbackEP();
                 return;
-            }
+            }*/
         }    
         var clientopts=
         {
