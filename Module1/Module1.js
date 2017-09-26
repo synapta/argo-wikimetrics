@@ -17,12 +17,19 @@ exports.load = function (ConfigObject)
     {
         if(response.statusCode!=200)
         {
+            console.log("First query failed: "+response.statusCode);
             return -1; 
+        }
+        
+        if (!fs.existsSync(ConfigObject.filepath))
+        {
+            fs.mkdirSync(ConfigObject.filepath);
         }
         fs.writeFile(ConfigObject.filepath+ConfigObject.filename+"_step1.csv", body, function(err) 
         {
             if(err) 
             {
+                console.log("File writing failed: "+err);
                 return -1;
             }
             //free some memory
