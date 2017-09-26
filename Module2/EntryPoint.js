@@ -3,16 +3,17 @@ var fs = require('fs');
 var HashMap=require('hashmap');
 var Module2=require('./Module2');
 var userProcessor = new HashMap();
-fs.readFile('../../dbaccess.json', function (err, logData) 
+fs.readFile('config.json', function (err, logData) 
 {
     if (err) throw err;
     var text = logData.toString();
-    dbAccess=JSON.parse(text);
-    fs.readFile('config.json', function (err, logData) 
+    ConfigdataObj=JSON.parse(text);
+    console.log(ConfigdataObj);
+    fs.readFile(ConfigdataObj.databaseconfig, function (err, logData) 
     {
         if (err) throw err;
         var text = logData.toString();
-        ConfigdataObj=JSON.parse(text);
+        dbAccess=JSON.parse(text);
         Module2.extract(userProcessor,dbAccess,ConfigdataObj,function()
         {
             console.log("Ended");
@@ -27,7 +28,7 @@ fs.readFile('../../dbaccess.json', function (err, logData)
             for(Uindex=0;Uindex<users.length;Uindex++)
             {
                 DU=users[Uindex];
-                if(DU.edits>50&&DU.maxEdit>300&&!DU.name.toLowerCase().includes("bot"))
+                if(DU.edits>50&&DU.maxEdit>500&&!DU.name.toLowerCase().includes("bot"))
                 {
                     filteredUsers[FUindex]=DU;
                     Fstream.write(DU.name+","+DU.edits+","+DU.maxEdit+"\n");

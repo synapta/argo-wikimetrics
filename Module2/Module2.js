@@ -154,7 +154,7 @@ var InsertUsersInProcessor=function(rows)
         /*else
             UD=userProcessor.get(key);*/
         UD.edits+=1;
-        elen=Math.abs(rows[i].rev_len-rows[i].old_len);
+        elen=rows[i].rev_len-rows[i].old_len;
         if(UD.maxEdit<elen)
             UD.maxEdit=elen;
         userProcessor.set(key,UD);
