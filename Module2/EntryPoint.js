@@ -23,17 +23,20 @@ fs.readFile('../../dbaccess.json', function (err, logData)
             filteredUsers=[];
             var FUindex=0;
             var Uindex=0;
+            Fstream=fs.createWriteStream(ConfigdataObj.filepath+ConfigdataObj.filename+"_OUT.csv", {'flags': 'w'});
             for(Uindex=0;Uindex<users.length;Uindex++)
             {
                 DU=users[Uindex];
                 if(DU.edits>50&&DU.maxEdit>300&&!DU.name.toLowerCase().includes("bot"))
                 {
                     filteredUsers[FUindex]=DU;
+                    Fstream.write(DU.name+","+DU.edits+","+DU.maxEdit+"\n");
                     FUindex++;
                 }
             }
+            Fstream.end("");
             console.log(filteredUsers);
-            throw new Error();
+            return;
         });
     }); 
 });

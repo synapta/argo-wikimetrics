@@ -33,7 +33,7 @@ var LangLoop=function()
 {    
     if(ConfigDataObj.languages.length>langIndex)
     {
-        finbase=ConfigDataObj.filepath+ConfigDataObj.filename+"_step2_";
+        finbase=ConfigDataObj.filepath+ConfigDataObj.filename;
         fin=finbase+(ConfigDataObj.languages[langIndex].value+".csv");
         liner = new lineByLine(fin);
         console.log(fin);
@@ -43,11 +43,11 @@ var LangLoop=function()
         {
             wikiCaller.end();
             packnum=0;//KEEP THIS
-            /*if(langIndex>0)
+            if(langIndex>0)//FLAAAAAAAAAAAAAAAAAAAAG
             {
                 callbackEP();
                 return;
-            }*/
+            }
         }    
         var clientopts=
         {
@@ -144,15 +144,15 @@ var InsertUsersInProcessor=function(rows)
     for(var i=1;i<rows.length;i++)
     {
         key=rows[i].rev_user_text;
-        if(!userProcessor.has(key))
+        if((UD=userProcessor.get(key))==null)
         {
             UD=new Object();
             UD.edits=0;
             UD.maxEdit=0;
             UD.name=rows[i].rev_user_text;
         }
-        else
-            UD=userProcessor.get(key);
+        /*else
+            UD=userProcessor.get(key);*/
         UD.edits+=1;
         elen=Math.abs(rows[i].rev_len-rows[i].old_len);
         if(UD.maxEdit<elen)
