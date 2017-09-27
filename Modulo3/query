@@ -1,0 +1,7 @@
+select t3.page_title, t0.rev_len,t0.rev_user_text, ifnull(t1.rev_len,0) as old_len, ifnull(t2.rev_len,0) as old_len2 
+from revision_userindex t0, revision t1, revision t2, page t3
+where t0.rev_page=t3.page_id
+and t0.rev_parent_id=t1.rev_id 
+and t1.rev_parent_id=t2.rev_id
+and t3.page_namespace=0
+and t0.rev_user in (select user_id from user where user_name in ('Badener','Al-qamar','InternetArchiveBot'));
