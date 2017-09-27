@@ -103,9 +103,10 @@ var TraductionExecute=function(line)
         RQ+=("\""+addslashes(decodeURI(lineascii.split("wiki/")[1]))+"\"");
         i++;
     } while(i<traductionLines&&(line=liner.next()));
-    var query1="select page_id from page where page_title in (";
+    /*var query1="select page_id from page where page_title in (";
     var query2=") and page_namespace=0";
-    var queryX=query1+RQ+query2;
+    var queryX=query1+RQ+query2;*/
+    var queryX=MountQuery1(RQ);
     //!console.log(queryX);
     wikiCaller.query(queryX, 
         function(err, rows) 
@@ -121,12 +122,13 @@ var TraductionExecute=function(line)
 var UserTranslateExecution=function(rows)
 {
     //monta la query numero due
-    query1="select t0.rev_user, t0.rev_user_text, t0.rev_len, ifnull(t1.rev_len,0) as old_len from revision t0, revision t1 where t0.rev_page in(";
-    query2=") and t0.rev_parent_id=t1.rev_id and t0.rev_user!=0 and t0.rev_minor_edit!=1;";
+   /* query1="select t0.rev_user, t0.rev_user_text, t0.rev_len, ifnull(t1.rev_len,0) as old_len from revision t0, revision t1 where t0.rev_page in(";
+    query2=") and t0.rev_parent_id=t1.rev_id and t0.rev_user!=0 and t0.rev_minor_edit!=1;";*/
     var RQ=rows[0].page_id;
     for(var i=1;i<rows.length;i++)
         RQ+=(", "+rows[i].page_id);
-    queryX=query1+RQ+query2;
+    //queryX=query1+RQ+query2;
+    queryX=MountQuery2(RQ);
     //eseguila
     //!console.log(queryX);
     wikiCaller.query(queryX, 
@@ -171,3 +173,15 @@ var Query=function(RQ,callbackTE)
     console.log(RQ);
     callbackTE();
 }
+var MountQuery1 = function (RQ) 
+{
+    return `select page_id from page where page_title in (${RQ}) and page_namespace=0;`;
+}
+var MountQuery2 = function (RQ) 
+{
+    return `select t0.rev_user, t0.rev_user_text, t0.rev_len, ifnull(t1.rev_len,0) 
+    as old_len from revision t0, revision t1 
+    where t0.rev_page in(${RQ}) and t0.rev_parent_id=t1.rev_id and t0.rev_user!=0 and t0.rev_minor_edit!=1;`;
+}
+
+ 
