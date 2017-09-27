@@ -17,12 +17,19 @@ exports.load = function (ConfigObject)
     {
         if(response.statusCode!=200)
         {
+            console.log("First query failed: "+response.statusCode);
             return -1; 
         }
-        fs.writeFile(ConfigObject.filename+"_step1.csv", body, function(err) 
+        
+        if (!fs.existsSync(ConfigObject.filepath))
+        {
+            fs.mkdirSync(ConfigObject.filepath);
+        }
+        fs.writeFile(ConfigObject.filepath+ConfigObject.filename+"_step1.csv", body, function(err) 
         {
             if(err) 
             {
+                console.log("File writing failed: "+err);
                 return -1;
             }
             //free some memory
@@ -45,7 +52,7 @@ var loadAll = function (ConfigObject)
         CONST_LANG_P1:"(https://",
         CONST_LANG_P2:".wikipedia)", //usare | tra campi
     }
-    FOUT=ConfigObject.filename+"_step2_";
+    FOUT=ConfigObject.filepath+ConfigObject.filename+"_step2_";
     CONST_QUERY_P2=properties.CONST_QUERY_P2.replace(/%22/g,"\""),
     langs=ConfigObject.languages;
     //open streams
@@ -67,7 +74,7 @@ var loadAll = function (ConfigObject)
     }
     properties.CONST_QUERY_P2=properties.CONST_QUERY_P2.replace("LANGS",LANGSTRING);
  
-    fin=ConfigObject.filename+"_step1.csv";
+    fin=ConfigObject.filepath+ConfigObject.filename+"_step1.csv";
   
     
     var lineByLine = require('n-readlines');
@@ -138,6 +145,7 @@ var executeRequest=function(QUERY, streams, callback)
     //console.log(APIandQuery);
     request.post(options, function (error, response, body) 
     {
+        //console.log(options);
         if(response.statusCode!=200)
         {
             console.log(response.statusCode);
