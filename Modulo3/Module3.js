@@ -23,6 +23,7 @@ var languageIndex;
 var userIndex;
 var dbCaller;
 var Client;
+var HashMap;
 exports.init=function(ConfigData,DbAccess,UserProcessor,EPcallback)
 {
     configData=ConfigData;
@@ -36,6 +37,7 @@ exports.init=function(ConfigData,DbAccess,UserProcessor,EPcallback)
     languageIndex=0;
     userIndex=0;
     Client = require('mariasql');
+    HashMap=require('hashmap');
     whitePages=new HashSet();
     blackPages=new HashSet();//al massimo è vuoto
     //load white pages
@@ -45,7 +47,9 @@ exports.init=function(ConfigData,DbAccess,UserProcessor,EPcallback)
         var line;
         while((line=liner.next()))
         {
-            whitePages.add("\""+addslashes(decodeURI(line.toString('ascii').split("wiki/")[1]))+"\"");
+            toAdd=addslashes(decodeURI(line.toString('ascii').split("wiki/")[1])).replace(/\r?\n|\r/,"");
+            //console.log(toAdd);
+            whitePages.add(toAdd);
         }
     }
     //load black pages
@@ -55,7 +59,9 @@ exports.init=function(ConfigData,DbAccess,UserProcessor,EPcallback)
         var line;
         while((line=liner.next()))
         {
-            blackPages.add("\""+addslashes(decodeURI(line.toString('ascii').split("wiki/")[1]))+"\"");
+            toAdd=addslashes(decodeURI(line.toString('ascii').split("wiki/")[1])).replace(/\r?\n|\r/,"");
+            //console.log(toAdd);
+            blackPages.add(toAdd);
         }
     }
     //load users to inspect(
@@ -76,25 +82,47 @@ exports.init=function(ConfigData,DbAccess,UserProcessor,EPcallback)
 var openLanguage=function()
 {
     if(languageIndex>0)
-        console.log("chiudendo...")//dbCaller.end();
+    {
+        console.log("Chiudo. ");
+        dbCaller.end();
+        console.log(userProcessor.values());
+        throw new Error();
+        
+    }    
     if(languageIndex==configData.languages.length)
     {
         console.log("end end");
+        epCallback();
         return;
     } 
+    var dbstring=configData.languages[languageIndex].value.toLowerCase()+"wiki_p";
+    console.log("Connecting to DBstring..."+dbstring);
+    var clientopts=
+    {
+        host: dbAccess.host,
+        user: dbAccess.user,
+        password: dbAccess.password,
+        port: dbAccess.port,
+        db: dbstring
+    };
+    //console.log(clientopts);
+    dbCaller=new Client(clientopts);
     languageIndex++;
     userIndex=0;
     preparePack();
-    languageIndex++;   
     
 }
 var preparePack=function()
 {
     var RQ="";
     var base=userIndex;
+    var inEvaluation=[];
     while(userIndex<usersToAnalyze.length&&(userIndex-base)<USER_PER_QUERY)
     {
-        RQ+=(usersToAnalyze[userIndex]+" ");
+        if((userIndex-base)>0)
+            RQ+=",";
+        inEvaluation[userIndex-base]=usersToAnalyze[userIndex];
+        RQ+=("'"+usersToAnalyze[userIndex]+"'");
         userIndex++;
     }
     if(userIndex==base)
@@ -102,14 +130,163 @@ var preparePack=function()
         openLanguage();
         return;
     }
-    sendPack(RQ);
+    sendPack(RQ,inEvaluation);
 }
-var sendPack=function(RQ)
+var sendPack=function(RQ,inEvaluation)
 {
-    console.log(RQ);
-    preparePack();
+    queryX=queryCompose(RQ);
+    console.log("Asking1...");
+    dbCaller.query(queryX, 
+        function(err, rows) 
+        {
+            if (err)
+                throw err;
+            //!console.log(rows);
+            console.log("Elaborating");
+            openRows(rows,null);
+            queryY=queryCompose2(RQ);
+            console.log("Asking2..");
+            dbCaller.query(queryY, 
+                function(err, rows) 
+                {
+                    if (err)
+                        throw err;
+                    console.log("Elaborating");
+                    openRows(rows,inEvaluation);
+                    
+                }
+            );    
+        }
+    );    
 }
-
+var openRows=function(rows,inEvaluation)
+{
+    for(var i=1;i<rows.length;i++)
+    {
+        key=utf8.decode(rows[i].rev_user_text);
+        if((UD=userProcessor.get(key))==null)
+        {
+            UD=new Object();
+            UD.news=0;
+            UD.blackCancels=0;
+            UD.whiteCancels=0;
+            UD.allCancels=0;
+            UD.whiteEdits=0;
+            UD.blackEdits=0;
+            UD.allEdits=0;
+            UD.name=utf8.decode(rows[i].rev_user_text);
+            UD.articles=null;
+            UD.whiteEditsMediumLength=0;
+            UD.collapsedLanguages=0;
+        }
+        if(UD.articles==null)
+        {
+            UD.articles=new HashMap();
+        }
+        UD=givePoints(UD,rows[i]);
+        userProcessor.set(key,UD);
+    }
+    if(inEvaluation!=null)
+    {
+        collapse(inEvaluation);
+        preparePack();
+    }
+}
+var collapse=function(inEvaluation)
+{
+    var i=0;
+    console.log("Collapsing");
+    while(i<inEvaluation.length)
+    {
+        key=inEvaluation[i];
+        UD=userProcessor.get(key);
+        if(UD==null)
+            console.log("NF");
+        var k=0;
+        var sum=0;
+        var tab=UD.articles.values();
+        while(k<tab.length)
+        {
+            sum+=tab[k].sum/tab[k].edit;
+            k++;
+        }
+        if(k>0)
+        {
+            UD.whiteEditsMediumLength=(UD.whiteEditsMediumLength*UD.collapsedLanguages+sum/k)/(UD.collapsedLanguages+1);
+            UD.collapsedLanguages++;
+        }
+        UD.articles.clear();
+        UD.articles=null;
+        i++;
+    }
+}
+var givePoints=function(UD,row)
+{
+    key2=utf8.decode(row.page_title);
+    //is Cancel?
+    if(row.rev_len==row.old_len2)
+    {
+        if(whitePages.contains(key2))
+            UD.whiteCancels++;
+        /*else */if(blackPages.contains(key2))
+            UD.blackCancels++;
+        /*else*/
+            UD.allCancels++;
+    } //is new?
+    else if(row.old_len==-1)
+    {
+        UD.news++;
+    }//is edit
+    else
+    {
+        if(whitePages.contains(key2))
+        {
+            UD.whiteEdits++;
+            var Stats=UD.articles.get(key2);
+            if(Stats==null)
+            {
+                Stats=new Object();
+                Stats.sum=0;
+                Stats.edit=0;
+            }  
+            Stats.sum+=(row.rev_len-row.old_len);
+            Stats.edit++;
+            UD.articles.set(key2,Stats);
+        }
+        /*else*/ if(blackPages.contains(key2))
+            UD.blackEdits++;
+        /*else*/
+            UD.allEdits++;
+    }
+    return UD;
+}
+var queryCompose = function (RQ) 
+{
+    return `select t3.page_title, t0.rev_len,t0.rev_user_text, ifnull(t1.rev_len,0) as old_len, ifnull(t2.rev_len,0) as old_len2 
+    from revision_userindex t0, revision t1, revision t2, page t3
+	where t0.rev_page=t3.page_id
+    and t0.rev_parent_id=t1.rev_id 
+    and t1.rev_parent_id=t2.rev_id
+    and t3.page_namespace=0
+    and t0.rev_user in (select user_id from user where user_name in (${RQ}))`;
+}
+var queryCompose2 = function (RQ) 
+{
+    return `select t3.page_title, t0.rev_len,t0.rev_user_text, ifnull(t1.rev_len,0) as old_len, 0 as old_len2 
+    from revision_userindex t0, revision t1, page t3
+	where t0.rev_page=t3.page_id
+    and t0.rev_parent_id=t1.rev_id 
+    and t1.rev_parent_id=0
+    and t3.page_namespace=0
+    and t0.rev_user in (select user_id from user where user_name in (${RQ}))
+union
+select t3.page_title, t0.rev_len,t0.rev_user_text, -1 as old_len, 0 as old_len2 
+    from revision_userindex t0, page t3
+	where t0.rev_page=t3.page_id
+    and t0.rev_parent_id=0
+    and t3.page_namespace=0
+    and t0.rev_user in (select user_id from user where user_name in (${RQ}))`;
+}
 var addslashes=function(str)
 {
     return (str + '').replace(/[\\"']/g, '\\$&').replace(/\u0000/g, '\\0');

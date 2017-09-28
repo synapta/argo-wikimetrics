@@ -1,7 +1,6 @@
 {
     "whitePages": [
-        {"value":"File_step2_EN.csv"},
-        {"value":"File_step2_DE.csv"}
+        {"value":"File_step2_ALS.csv"}
     ],
     "blackPages": [
         {"value":"File_step2_IT.csv"},
