@@ -1,20 +1,15 @@
 {
     "whitePages": [
-        {"value":"File_step2_ALS.csv"}
+        {"value":"File_step2_ALS.csv"},
+        {"value":"File_step2_RM.csv"}
     ],
     "blackPages": [
-        {"value":"File_step2_IT.csv"},
-        {"value":"File_step2_DE.csv"}
     ],
     "usersFilename":"File_step2__OUT.csv",
     "databaseconfig":"../../dbaccess.json",
 	"languages": [
         {"value": "ALS"},
-        {"value": "EN"},
-        {"value": "IT"},
-        {"value": "FR"},
-        {"value": "DE"},
-		{"value": "RM"}
+        {"value": "RM"}
     ],
     "filepath":"../Samples/"
     

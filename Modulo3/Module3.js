@@ -53,7 +53,7 @@ exports.init=function(ConfigData,DbAccess,UserProcessor,EPcallback)
         }
     }
     //load black pages
-    for(var i=0;i<ConfigData.whitePages.length;i++)
+    for(var i=0;i<ConfigData.blackPages.length;i++)
     {
         var liner = new lineByLine(ConfigData.filepath+ConfigData.blackPages[i].value);
         var line;
@@ -73,9 +73,9 @@ exports.init=function(ConfigData,DbAccess,UserProcessor,EPcallback)
         usersToAnalyze[i]=(line.toString('utf8').split(",")[0]);
         i++;
     }
-    console.log(usersToAnalyze);
+    //console.log(usersToAnalyze);
     usersToAnalyze=shuffleArray(usersToAnalyze);
-    console.log(usersToAnalyze);
+    //console.log(usersToAnalyze);
     openLanguage();
     
 }
@@ -86,7 +86,7 @@ var openLanguage=function()
         console.log("Chiudo. ");
         dbCaller.end();
         console.log(userProcessor.values());
-        throw new Error();
+        //throw new Error();
         
     }    
     if(languageIndex==configData.languages.length)
@@ -204,7 +204,13 @@ var collapse=function(inEvaluation)
             console.log("NF");
         var k=0;
         var sum=0;
-        var tab=UD.articles.values();
+        var HT=UD.articles;
+        if(HT==null)
+        {
+            i++;
+            continue;
+        }
+        var tab=HT.values();
         while(k<tab.length)
         {
             sum+=tab[k].sum/tab[k].edit;
