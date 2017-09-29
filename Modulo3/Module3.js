@@ -178,6 +178,7 @@ var openRows=function(rows,inEvaluation)
             UD.articles=null;
             UD.whiteEditsMediumLength=0;
             UD.collapsedLanguages=0;
+            UD.whitePagesN=0;
         }
         if(UD.articles==null)
         {
@@ -211,15 +212,24 @@ var collapse=function(inEvaluation)
             continue;
         }
         var tab=HT.values();
+        var prec=0;
         while(k<tab.length)
         {
-            sum+=tab[k].sum/tab[k].edit;
+            sum+=tab[k].sum;
             k++;
         }
         if(k>0)
         {
-            UD.whiteEditsMediumLength=(UD.whiteEditsMediumLength*UD.collapsedLanguages+sum/k)/(UD.collapsedLanguages+1);
+            prec=UD.whiteEditsMediumLength*UD.whitePagesN;
+            console.log("ML:"+UD.whiteEditsMediumLength);
+            console.log("UP:"+UD.whitePagesN);
+            console.log("P:"+prec);
+            console.log("S:"+sum);
+            console.log("W:"+UD.whitePagesN);
+            console.log("K:"+k);
+            UD.whiteEditsMediumLength=(prec+sum)/(UD.whitePagesN+k);
             UD.collapsedLanguages++;
+            UD.whitePagesN+=k;
         }
         UD.articles.clear();
         UD.articles=null;
@@ -255,9 +265,14 @@ var givePoints=function(UD,row)
                 Stats.sum=0;
                 Stats.edit=0;
             }  
-            Stats.sum+=(row.rev_len-row.old_len);
-            Stats.edit++;
+            var len=(row.rev_len-row.old_len);
+            if(len>0)
+            {
+                Stats.sum+=len;            
+                Stats.edit++;
+            }
             UD.articles.set(key2,Stats);
+            
         }
         /*else*/ if(blackPages.contains(key2))
             UD.blackEdits++;
@@ -285,8 +300,8 @@ var queryCompose2 = function (RQ)
     and t1.rev_parent_id=0
     and t3.page_namespace=0
     and t0.rev_user in (select user_id from user where user_name in (${RQ}))
-union
-select t3.page_title, t0.rev_len,t0.rev_user_text, -1 as old_len, 0 as old_len2 
+    union
+    select t3.page_title, t0.rev_len,t0.rev_user_text, -1 as old_len, 0 as old_len2 
     from revision_userindex t0, page t3
 	where t0.rev_page=t3.page_id
     and t0.rev_parent_id=0
