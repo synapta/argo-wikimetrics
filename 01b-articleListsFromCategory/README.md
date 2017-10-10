@@ -3,6 +3,8 @@ Wikimetrics - Article lists from category tree
 
 This module allows to fetch all the URLs of language-specific Wikipedia articles navigating the category tree specified.
 
+The example configuration that we offer aims to get the list of English, Deutsch, French, Italian and Allemanish Wikipedia articles that have a category under https://www.wikidata.org/wiki/Q1456250 (max 3 hops).
+
 Input
 -----
 ```
