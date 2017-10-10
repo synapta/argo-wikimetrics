@@ -3,10 +3,13 @@ var fs = require('fs');
 var lineByLine = require('n-readlines');
 
 
-exports.load = function(ConfigObject) {
+var load = function(ConfigObject) {
     console.log("Requesting list of items via SPARQL query to Wikidata...");
 
-    var query = "https://query.wikidata.org/sparql?query=" + encodeURI(ConfigObject.query).replace(/%22/g, "\"");
+    var sparqlQuery = fs.readFileSync(ConfigObject.query).toString();
+    console.log(sparqlQuery);
+
+    var query = "https://query.wikidata.org/sparql?query=" + encodeURI(sparqlQuery);
     var options = {
         url: query,
         headers: {
@@ -137,3 +140,16 @@ var loadAll = function(ConfigObject) {
     //console.log("Point 1");
     recursiveAsker(liner, 0, properties, streams);
 }
+
+
+console.log("Loading settings...");
+fs.readFile('config.json', function (err, logData) {
+    if (err) throw err;
+
+    var text = logData.toString();
+    configDataObj = JSON.parse(text);
+    console.log("Completed!");
+    console.log("===========================================");
+
+    load(configDataObj);
+});

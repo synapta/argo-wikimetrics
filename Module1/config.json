@@ -1,4 +1,0 @@
-{
-	"languages": ["EN", "DE", "IT", "FR", "ALS"],
-  "query": "SELECT DISTINCT ?place ?placeLabel WHERE { SERVICE wikibase:label { bd:serviceParam wikibase:language \"en\" . } { wd:Q841386 wdt:P625 ?SJloc .wd:Q512016 wdt:P625 ?SCloc . SERVICE wikibase:box { ?place wdt:P625 ?location .    bd:serviceParam wikibase:cornerSouthWest ?SJloc . bd:serviceParam wikibase:cornerNorthEast ?SCloc . } } }"
-}

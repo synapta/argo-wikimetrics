@@ -1,7 +1,6 @@
 var fs = require('fs');
-var Module1 = require('./Module1');
 
-console.log("Loading settings...")
+console.log("Loading settings...");
 fs.readFile('config.json', function (err, logData) {
     if (err) throw err;
 
@@ -10,5 +9,5 @@ fs.readFile('config.json', function (err, logData) {
     console.log("Completed!");
     console.log("===========================================");
 
-    Module1.load(configDataObj);
+    //TODO
 });

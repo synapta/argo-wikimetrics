@@ -1,0 +1,5 @@
+{
+	"languages": ["EN", "DE", "IT", "FR", "ALS"],
+  "query": "query.sparql",
+	"category": "Q1456250"
+}
