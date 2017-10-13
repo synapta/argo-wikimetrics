@@ -1,6 +1,8 @@
 //INCLUDES
 var fs = require('fs');
 var request=require('request');
+var Client = require('mariasql');
+utf8 = require('utf8');
 //GLOBALS
 var configDataObj;
 var dbAccess;
@@ -13,7 +15,8 @@ var PresentLevel;
 var NextLevel;
 var PresentIndex;
 var NextIndex=0;
-var CONST_ITEMS_PER_QUERY=50;
+var CONST_ITEMS_PER_QUERY=25;
+var wikiCaller;
 //FUNCTIONS
 var MountTraductionQuery=function(entity,langs)
 {
@@ -69,17 +72,33 @@ var ExtractCategoryNames=function(body)
 var WikiOpen=function()
 {
     wikiIndex++;
-    hop=0;
-    Pages=[];
-    NextLevel=[];
-    NextLevel[0]=Categories[wikiIndex].value;
+    hop=-1;
+    
+    if(wikiIndex>0)
+    {
+        wikiCaller.end();
+    }
     if(wikiIndex==Categories.length)
     {
-        console.log("\n\nProcess fully completed!")
+        console.log("\nProcess fully completed!")
         return 0;
     }
+    Pages=[];
+    PagesIndex=0;
+    NextLevel=[];
+    NextLevel[0]=Categories[wikiIndex].value;
     console.log("===========================================");
     console.log("Opening wiki "+Categories[wikiIndex].wiki.toUpperCase());
+    var dbstring=Categories[wikiIndex].wiki+"wiki_p";
+    var clientopts=
+    {
+        host: dbAccess.host,
+        user: dbAccess.user,
+        password:  dbAccess.password,
+        port: dbAccess.port,
+        db: dbstring
+    };
+    wikiCaller=new Client(clientopts);
     doHop();
 }
 var doHop=function()
@@ -87,7 +106,7 @@ var doHop=function()
     hop++;
     if(hop==configDataObj.maxLevel)
     {
-        GetPages(0);
+        GetPages();
         return;
     }
     console.log("Hop "+hop);
@@ -95,7 +114,7 @@ var doHop=function()
     NextLevel=[];
     PresentIndex=0;
     NextIndex=0;
-
+    GetLevelChilds();
 }
 var GetLevelChilds=function()
 {
@@ -107,12 +126,41 @@ var GetLevelChilds=function()
     console.log("At "+PresentIndex+" of "+PresentLevel.length);
     var query=BuildCategoryQuery(PresentLevel,PresentIndex,PresentIndex+CONST_ITEMS_PER_QUERY);
     PresentIndex+=CONST_ITEMS_PER_QUERY;
-    //query
-    //call yourself, then nexthop
+    wikiCaller.query(query, function(err, rows) 
+        {
+            if (err)
+                throw err;
+            for(var k=0;k<rows.length;k++)
+            {
+                if(rows[k].page_namespace==14)
+                {
+                    NextLevel[NextIndex]=utf8.decode(rows[k].page_title);
+                    NextIndex++;
+                }
+                else if(rows[k].page_namespace==0)
+                {
+                    Pages[PagesIndex]=utf8.decode(rows[k].page_title);
+                    PagesIndex++;
+                }
+            }
+            GetLevelChilds();
+        });
 }
-var GetPages=function(startindex)
+var GetPages=function()
 {
-    //call yourself, then OpenWiki
+    //i titoli delle pagine le ho già in pages no? quindi salva tutto e chiama OpenWiki
+    var fname="target/step2_"+Categories[wikiIndex].wiki+".csv";
+    var fwiki="https://"+Categories[wikiIndex].wiki+".wikipedia.org/wiki/";
+    var toSave="";
+    for(var t=0;t<Pages.length;t++)
+        toSave+=(fwiki+Pages[t]+"\n");
+    fs.writeFile(fname, toSave, function(err) {
+        if(err) {
+            return console.log(err);
+        }
+        WikiOpen();
+    }); 
+   
 }
 var BuildCategoryQuery=function(arr,start,end)
 {
@@ -120,7 +168,7 @@ var BuildCategoryQuery=function(arr,start,end)
     var RQ="";
     while(j<end&&j<arr.length)
     {
-        if(j>1)
+        if(j>start)
             RQ+=',';
         RQ+="'"+arr[j]+"'";
         j++;
@@ -143,6 +191,9 @@ fs.readFile('config.json', function (err, logData) {
         dbAccess = JSON.parse(text);
         console.log("Completed!");
         console.log("===========================================");
+        if (!fs.existsSync("target")) {
+            fs.mkdirSync("target");
+        }
         TraductionStep();
     });
     //TODO
