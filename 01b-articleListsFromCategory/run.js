@@ -3,6 +3,8 @@ var fs = require('fs');
 var request=require('request');
 var Client = require('mariasql');
 utf8 = require('utf8');
+//CONSTANTS
+const CONST_ITEMS_PER_QUERY=25;
 //GLOBALS
 var configDataObj;
 var dbAccess;
@@ -15,7 +17,6 @@ var PresentLevel;
 var NextLevel;
 var PresentIndex;
 var NextIndex=0;
-var CONST_ITEMS_PER_QUERY=25;
 var wikiCaller;
 //FUNCTIONS
 var MountTraductionQuery=function(entity,langs)

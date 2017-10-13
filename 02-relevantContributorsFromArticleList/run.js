@@ -4,8 +4,9 @@ var HashMap=require('hashmap');
 var lineByLine = require('n-readlines');
 var Client = require('mariasql');
 var utf8 = require('utf8');
-//GLOBALS
+//CONSTANTS
 const traductionLines=200;
+//GLOBALS
 var userProcessor;
 var wikiCaller=null;
 var ConfigDataObj;
