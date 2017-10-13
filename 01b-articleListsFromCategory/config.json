@@ -1,5 +1,6 @@
 {
 	"languages": ["EN", "DE", "IT", "FR", "ALS"],
+	"databaseconfig":"../../dbaccess.json",
 	"category": "Q1456250",
 	"maxLevel": "3"
 }
