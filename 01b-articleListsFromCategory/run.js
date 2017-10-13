@@ -2,7 +2,7 @@
 var fs = require('fs');
 var request=require('request');
 var Client = require('mariasql');
-utf8 = require('utf8');
+var utf8 = require('utf8');
 //CONSTANTS
 const CONST_ITEMS_PER_QUERY=25;
 //GLOBALS
@@ -149,7 +149,6 @@ var GetLevelChilds=function()
 }
 var GetPages=function()
 {
-    //i titoli delle pagine le ho già in pages no? quindi salva tutto e chiama OpenWiki
     var fname="target/step2_"+Categories[wikiIndex].wiki+".csv";
     var fwiki="https://"+Categories[wikiIndex].wiki+".wikipedia.org/wiki/";
     var toSave="";

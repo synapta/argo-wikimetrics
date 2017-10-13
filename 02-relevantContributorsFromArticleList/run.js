@@ -34,9 +34,9 @@ var LangLoop=function()
     if(ConfigDataObj.languages.length>langIndex)
     {
         finbase=ConfigDataObj.filepath+ConfigDataObj.filename;
-        fin=finbase+(ConfigDataObj.languages[langIndex].value+".csv");
+        fin=finbase+(ConfigDataObj.languages[langIndex]+".csv");
         liner = new lineByLine(fin);
-        var dbstring=ConfigDataObj.languages[langIndex].value.toLowerCase()+"wiki_p";
+        var dbstring=ConfigDataObj.languages[langIndex].toLowerCase()+"wiki_p";
         console.log("===========================================");
         console.log("Connecting to database "+dbstring+" and requesting for packages...");
         if(langIndex>0)
