@@ -1,25 +1,23 @@
+//INCLUDES
+var fs = require('fs');
+var HashMap=require('hashmap');
+var lineByLine = require('n-readlines');
+var Client = require('mariasql');
+var utf8 = require('utf8');
+//GLOBALS
 const traductionLines=200;
 var userProcessor;
 var wikiCaller=null;
 var ConfigDataObj;
-var lineByLine;
 var langIndex;
 var liner;
 var callbackEP;
 var DBAccess;
-var Client;
 var packnum=0;
-var utf8;
-exports.extract=function(userProc,dBAccess,ConfigData,callbackEPx)
+//FUNCTIONS
+var extract=function(userProc,dBAccess,ConfigData,callbackEPx)
 {
-    //STEP 1: open 1 language
-    //STEP 2: read line and request traduction
-    //STEP 3: request info from codes
-    //STEP 4: save results
-    Client = require('mariasql');
-    lineByLine = require('n-readlines');
     userProcessor=userProc;
-    utf8 = require('utf8');
     ConfigDataObj=ConfigData;
     langIndex=0;
     callbackEP=callbackEPx;
@@ -37,18 +35,13 @@ var LangLoop=function()
         finbase=ConfigDataObj.filepath+ConfigDataObj.filename;
         fin=finbase+(ConfigDataObj.languages[langIndex].value+".csv");
         liner = new lineByLine(fin);
-        console.log(fin);
         var dbstring=ConfigDataObj.languages[langIndex].value.toLowerCase()+"wiki_p";
-        console.log("Connecting to DBstring..."+dbstring);
+        console.log("===========================================");
+        console.log("Connecting to database "+dbstring+" and requesting for packages...");
         if(langIndex>0)
         {
             wikiCaller.end();
-            packnum=0;//KEEP THIS
-            /*if(langIndex>0)//FLAAAAAAAAAAAAAAAAAAAAG
-            {
-                callbackEP();
-                return;
-            }*/
+            packnum=0;
         }    
         var clientopts=
         {
@@ -58,9 +51,7 @@ var LangLoop=function()
             port: DBAccess.port,
             db: dbstring
         };
-        //console.log(clientopts);
         wikiCaller=new Client(clientopts);
-        console.log("Connected(?!)");
         LangExecute();
     }
     else
@@ -103,34 +94,22 @@ var TraductionExecute=function(line)
         RQ+=("\""+addslashes(decodeURI(lineascii.split("wiki/")[1]))+"\"");
         i++;
     } while(i<traductionLines&&(line=liner.next()));
-    /*var query1="select page_id from page where page_title in (";
-    var query2=") and page_namespace=0";
-    var queryX=query1+RQ+query2;*/
     var queryX=MountQuery1(RQ);
-    //!console.log(queryX);
     wikiCaller.query(queryX, 
         function(err, rows) 
         {
             if (err)
                 throw err;
-            //!console.log(rows);
             UserTranslateExecution(rows);
-            
         }
     );
 }
 var UserTranslateExecution=function(rows)
 {
-    //monta la query numero due
-   /* query1="select t0.rev_user, t0.rev_user_text, t0.rev_len, ifnull(t1.rev_len,0) as old_len from revision t0, revision t1 where t0.rev_page in(";
-    query2=") and t0.rev_parent_id=t1.rev_id and t0.rev_user!=0 and t0.rev_minor_edit!=1;";*/
     var RQ=rows[0].page_id;
     for(var i=1;i<rows.length;i++)
         RQ+=(", "+rows[i].page_id);
-    //queryX=query1+RQ+query2;
     queryX=MountQuery2(RQ);
-    //eseguila
-    //!console.log(queryX);
     wikiCaller.query(queryX, 
     function(err, rows) 
     {
@@ -154,8 +133,6 @@ var InsertUsersInProcessor=function(rows)
             UD.maxEdit=0;
             UD.name=utf8.decode(rows[i].rev_user_text);
         }
-        /*else
-            UD=userProcessor.get(key);*/
         UD.edits+=1;
         elen=rows[i].rev_len-rows[i].old_len;
         if(UD.maxEdit<elen)
@@ -164,9 +141,7 @@ var InsertUsersInProcessor=function(rows)
     }
     packnum++;    
     console.log("Packs completed: "+packnum);
-    //calcola punteggi e inserisci utenti nella HT
     TraductionLoop();
-
 }
 var Query=function(RQ,callbackTE)
 {
@@ -183,5 +158,41 @@ var MountQuery2 = function (RQ)
     as old_len from revision t0, revision t1 
     where t0.rev_page in(${RQ}) and t0.rev_parent_id=t1.rev_id and t0.rev_user!=0 and t0.rev_minor_edit!=1;`;
 }
-
- 
+//ENTRY POINT
+console.log("Loading Settings...")
+var userProcessor = new HashMap();
+fs.readFile('config.json', function (err, logData) 
+{
+    if (err) throw err;
+    var text = logData.toString();
+    ConfigdataObj=JSON.parse(text);
+    fs.readFile(ConfigdataObj.databaseconfig, function (err, logData) 
+    {
+        if (err) throw err;
+        var text = logData.toString();
+        dbAccess=JSON.parse(text);
+        console.log("Completed!");
+        extract(userProcessor,dbAccess,ConfigdataObj,function()
+        {
+            console.log("Process fully completed!");
+            users=userProcessor.values();
+            users.sort(function(a, b){return -a.edits+b.edits});
+            filteredUsers=[];
+            var FUindex=0;
+            var Uindex=0;
+            Fstream=fs.createWriteStream(ConfigdataObj.filepath+ConfigdataObj.filename+"_OUT.csv", {'flags': 'w'});
+            for(Uindex=0;Uindex<users.length;Uindex++)
+            {
+                DU=users[Uindex];
+                if(DU.edits>50&&DU.maxEdit>500&&!DU.name.toLowerCase().includes("bot"))
+                {
+                    filteredUsers[FUindex]=DU;
+                    Fstream.write(DU.name+","+DU.edits+","+DU.maxEdit+"\n");
+                    FUindex++;
+                }
+            }
+            Fstream.end("");
+            return;
+        });
+    }); 
+});
