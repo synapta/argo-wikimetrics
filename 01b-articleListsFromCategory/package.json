@@ -1,4 +1,9 @@
 {
+    "name": "wikimetrics_m1b",
+    "version": "0.2.0",
     "dependencies": {
+        "mariasql" : ">=0.2.6", 
+        "request": ">=2.81.0",
+        "utf8":">=2.1.2"
     }
 }
