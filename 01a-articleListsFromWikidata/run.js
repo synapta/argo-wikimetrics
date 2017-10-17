@@ -3,7 +3,7 @@ var fs = require('fs');
 var lineByLine = require('n-readlines');
 
 
-var load = function(ConfigObject) {
+var load = function (ConfigObject) {
     console.log("Requesting list of items via SPARQL query to Wikidata...");
 
     var sparqlQuery = fs.readFileSync(ConfigObject.query).toString();
@@ -17,7 +17,7 @@ var load = function(ConfigObject) {
         }
     }
 
-    request(options, function(error, response, body) {
+    request(options, function (error, response, body) {
         if (response.statusCode != 200) {
             console.log("Query failed: " + response.statusCode);
             return -1;
@@ -26,7 +26,7 @@ var load = function(ConfigObject) {
         if (!fs.existsSync("target")) {
             fs.mkdirSync("target");
         }
-        fs.writeFile("target/" + "step1.csv", body, function(err) {
+        fs.writeFile("target/" + "step1.csv", body, function (err) {
             if (err) {
                 console.log("File writing failed: " + err);
                 return -1;
@@ -40,7 +40,7 @@ var load = function(ConfigObject) {
     });
 }
 
-var recursiveAsker = function(liner, packnum, properties, streams) {
+var recursiveAsker = function (liner, packnum, properties, streams) {
     var line;
     var lineNumber = 0;
     var RQ = "";
@@ -53,7 +53,7 @@ var recursiveAsker = function(liner, packnum, properties, streams) {
     }
     QUERY = properties.CONST_QUERY_P1 + RQ + properties.CONST_QUERY_P2;
     if (RQ != "") {
-        executeRequest(QUERY, streams, function() {
+        executeRequest(QUERY, streams, function () {
             if (lineNumber == properties.CONST_LINEGROUP) {
                 recursiveAsker(liner, packnum + 1, properties, streams);
             } else {
@@ -66,16 +66,16 @@ var recursiveAsker = function(liner, packnum, properties, streams) {
             }
         });
     } else {
-      //close streams
-      var langs = streams["langs"];
-      for (var i = 0; i < langs.length; i++) {
-          streams[langs[i].toLowerCase()].end("");
-      }
-      console.log("Completed!");
+        //close streams
+        var langs = streams["langs"];
+        for (var i = 0; i < langs.length; i++) {
+            streams[langs[i].toLowerCase()].end("");
+        }
+        console.log("Completed!");
     }
 }
 
-var executeRequest = function(QUERY, streams, callback) {
+var executeRequest = function (QUERY, streams, callback) {
     //console.log("Point 3 ");
     var APIandQuery = "https://query.wikidata.org/sparql"; //?query="+QUERY;
     var options = {
@@ -87,7 +87,7 @@ var executeRequest = function(QUERY, streams, callback) {
         body: "query=" + QUERY
     }
 
-    request.post(options, function(error, response, body) {
+    request.post(options, function (error, response, body) {
         if (response.statusCode != 200) {
             console.log(response.statusCode);
             return -1;
@@ -106,7 +106,7 @@ var executeRequest = function(QUERY, streams, callback) {
     });
 }
 
-var loadAll = function(ConfigObject) {
+var loadAll = function (ConfigObject) {
     var properties = {
         CONST_LINEGROUP: 10000,
         CONST_QUERY_P1: encodeURI("SELECT ?wp WHERE { VALUES ?entity {"),
