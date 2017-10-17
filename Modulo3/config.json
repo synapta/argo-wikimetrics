@@ -8,9 +8,10 @@
     "usersFilename":"File_step2__OUT.csv",
     "databaseconfig":"../../dbaccess.json",
 	"languages": [
-        {"value": "ALS"},
-        {"value": "RM"}
+        {"value": "RM"},
+        {"value": "ALS"}
     ],
+    "filename":"File_step3",
     "filepath":"../Samples/"
     
 }

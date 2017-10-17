@@ -1,5 +1,12 @@
 //INCLUDES
-
+var lineByLine = require('n-readlines');
+var HashSet=require('hashset');
+var Client = require('mariasql');
+var HashMap=require('hashmap');
+var utf8 = require('utf8');
+var fs=require('fs');
+//CONSTANTS
+const USER_PER_QUERY=10;
 //GLOBALS
 var configData;
 var dbAccess;
@@ -8,34 +15,24 @@ var epCallback;
 var usersToAnalyze;
 var whitePages;
 var blackPages;
-var utf8;
-var USER_PER_QUERY=10;
 var languageIndex;
 var userIndex;
 var dbCaller;
-var Client;
-var HashMap;
+var packnum;
+var totpacks;
 //FUNCTIONS
-exports.init=function(ConfigData,DbAccess,UserProcessor,EPcallback)
+init=function(EPcallback)
 {
-    configData=ConfigData;
-    dbAccess=DbAccess;
-    userProcessor=UserProcessor;
     epCallback=EPcallback;
     usersToAnalyze=[];
-    utf8 = require('utf8');
-    lineByLine = require('n-readlines');
-    HashSet=require('hashset');
     languageIndex=0;
     userIndex=0;
-    Client = require('mariasql');
-    HashMap=require('hashmap');
     whitePages=new HashSet();
     blackPages=new HashSet();//al massimo è vuoto
     //load white pages
-    for(var i=0;i<ConfigData.whitePages.length;i++)
+    for(var i=0;i<configData.whitePages.length;i++)
     {
-        var liner = new lineByLine(ConfigData.filepath+ConfigData.whitePages[i].value);
+        var liner = new lineByLine(configData.filepath+configData.whitePages[i].value);
         var line;
         while((line=liner.next()))
         {
@@ -45,9 +42,9 @@ exports.init=function(ConfigData,DbAccess,UserProcessor,EPcallback)
         }
     }
     //load black pages
-    for(var i=0;i<ConfigData.blackPages.length;i++)
+    for(var i=0;i<configData.blackPages.length;i++)
     {
-        var liner = new lineByLine(ConfigData.filepath+ConfigData.blackPages[i].value);
+        var liner = new lineByLine(configData.filepath+configData.blackPages[i].value);
         var line;
         while((line=liner.next()))
         {
@@ -57,7 +54,7 @@ exports.init=function(ConfigData,DbAccess,UserProcessor,EPcallback)
         }
     }
     //load users to inspect(
-    var liner = new lineByLine(ConfigData.filepath+ConfigData.usersFilename);
+    var liner = new lineByLine(configData.filepath+configData.usersFilename);
     var line;
     var i=0;
     while((line=liner.next()))
@@ -68,6 +65,7 @@ exports.init=function(ConfigData,DbAccess,UserProcessor,EPcallback)
     //console.log(usersToAnalyze);
     usersToAnalyze=shuffleArray(usersToAnalyze);
     //console.log(usersToAnalyze);
+    totpacks=Math.ceil(usersToAnalyze.length/USER_PER_QUERY)*2;
     openLanguage();
     
 }
@@ -83,12 +81,13 @@ var openLanguage=function()
     }    
     if(languageIndex==configData.languages.length)
     {
-        console.log("end end");
+        console.log("\nProcess completed");
         epCallback();
         return;
     } 
     var dbstring=configData.languages[languageIndex].value.toLowerCase()+"wiki_p";
-    console.log("Connecting to DBstring..."+dbstring);
+    console.log("===========================================");
+    console.log("Connecting to database "+dbstring+" ("+(languageIndex+1)+" of "+configData.languages.length+") and requesting for packages...");
     var clientopts=
     {
         host: dbAccess.host,
@@ -101,6 +100,7 @@ var openLanguage=function()
     dbCaller=new Client(clientopts);
     languageIndex++;
     userIndex=0;
+    packnum=1;
     preparePack();
     
 }
@@ -127,7 +127,8 @@ var preparePack=function()
 var sendPack=function(RQ,inEvaluation)
 {
     queryX=queryCompose(RQ);
-    console.log("Asking1...");
+    console.log("Requesting pack "+packnum+" of "+totpacks+"...");
+    packnum++;
     dbCaller.query(queryX, 
         function(err, rows) 
         {
@@ -137,7 +138,8 @@ var sendPack=function(RQ,inEvaluation)
             console.log("Elaborating");
             openRows(rows,null);
             queryY=queryCompose2(RQ);
-            console.log("Asking2..");
+            console.log("Requesting pack "+packnum+" of "+totpacks+"...");
+            packnum++;
             dbCaller.query(queryY, 
                 function(err, rows) 
                 {
@@ -193,10 +195,15 @@ var collapse=function(inEvaluation)
     {
         key=inEvaluation[i];
         UD=userProcessor.get(key);
-        if(UD==null)
-            console.log("NF");
+        /*if(UD==null)
+            console.log("NF");*/
         var k=0;
         var sum=0;
+        if(UD==null)
+        {
+            i++;
+            continue;
+        }
         var HT=UD.articles;
         if(HT==null)
         {
@@ -213,12 +220,12 @@ var collapse=function(inEvaluation)
         if(k>0)
         {
             prec=UD.whiteEditsMediumLength*UD.whitePagesN;
-            console.log("ML:"+UD.whiteEditsMediumLength);
+            /*console.log("ML:"+UD.whiteEditsMediumLength);
             console.log("UP:"+UD.whitePagesN);
             console.log("P:"+prec);
             console.log("S:"+sum);
             console.log("W:"+UD.whitePagesN);
-            console.log("K:"+k);
+            console.log("K:"+k);*/
             UD.whiteEditsMediumLength=(prec+sum)/(UD.whitePagesN+k);
             UD.collapsedLanguages++;
             UD.whitePagesN+=k;
@@ -236,10 +243,9 @@ var givePoints=function(UD,row)
     {
         if(whitePages.contains(key2))
             UD.whiteCancels++;
-        /*else */if(blackPages.contains(key2))
+        else if(blackPages.contains(key2))
             UD.blackCancels++;
-        /*else*/
-            UD.allCancels++;
+        UD.allCancels++;
     } //is new?
     else if(row.old_len==-1)
     {
@@ -266,10 +272,9 @@ var givePoints=function(UD,row)
             UD.articles.set(key2,Stats);
             
         }
-        /*else*/ if(blackPages.contains(key2))
+        else if(blackPages.contains(key2))
             UD.blackEdits++;
-        /*else*/
-            UD.allEdits++;
+        UD.allEdits++;
     }
     return UD;
 }
@@ -314,3 +319,33 @@ var shuffleArray=function(array) {
     return array;
 }
 //ENTRY POINT
+console.log("Loading configuration....");
+var userProcessor=new HashMap();
+fs.readFile('config.json', function (err, logData) 
+{
+    if (err) throw err;
+    var text = logData.toString();
+    configData=JSON.parse(text);
+    fs.readFile(configData.databaseconfig, function (err, logData) 
+    {
+        if (err) throw err;
+        var text = logData.toString();
+        dbAccess=JSON.parse(text);
+        console.log("Completed!");
+        init(function(){
+            var p=0;
+            results=userProcessor.values();
+            Fstream = fs.createWriteStream(configData.filepath + configData.filename + "_USERS_OUT.json", { 'flags': 'w' });
+            Fstream.write("[");
+            while(p<results.length)
+            {
+                toWrite=JSON.stringify(results[p]);
+                if(p>0)
+                    toWrite=","+toWrite;
+                Fstream.write(toWrite);
+                p++;
+            }
+            Fstream.end("]");
+        });
+    });
+});
