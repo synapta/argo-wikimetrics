@@ -1,1 +1,6 @@
 Samples/*
+wDir/*
+01a-articleListsFromWikidata/target/*
+01b-articleListsFromCategory/target/*
+02-relevantContributorsFromArticleList/target/*
+Modulo3/target/*

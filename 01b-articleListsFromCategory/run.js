@@ -133,11 +133,11 @@ var GetLevelChilds = function () {
     });
 }
 var GetPages = function () {
-    var fname = "target/step2_" + Categories[wikiIndex].wiki + ".csv";
+    var fname = "target/step2_" + Categories[wikiIndex].wiki.toUpperCase() + ".csv";
     var fwiki = "https://" + Categories[wikiIndex].wiki + ".wikipedia.org/wiki/";
     var toSave = "";
     for (var t = 0; t < Pages.length; t++)
-        toSave += (fwiki + Pages[t] + "\n");
+        toSave += (fwiki + Pages[t] + "\r\n");
     fs.writeFile(fname, toSave, function (err) {
         if (err) {
             return console.log(err);
