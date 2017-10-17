@@ -1,7 +1,7 @@
 {
     "filename": "File_step2_",
     "databaseconfig":"../../dbaccess.json",
-	"languages": ["ALS"],
+	"languages": ["EN","IT","FR"],
     "filepath":"../Samples/"
     
 }

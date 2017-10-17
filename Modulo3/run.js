@@ -341,7 +341,7 @@ fs.readFile('config.json', function (err, logData)
             {
                 toWrite=JSON.stringify(results[p]);
                 if(p>0)
-                    toWrite=","+toWrite;
+                    toWrite=",\n"+toWrite;
                 Fstream.write(toWrite);
                 p++;
             }

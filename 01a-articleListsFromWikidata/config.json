@@ -1,4 +1,4 @@
 {
-	"languages": ["EN", "DE", "IT", "FR", "ALS"],
+	"languages": ["EN","IT", "FR"],
   "query": "query.sparql"
 }
