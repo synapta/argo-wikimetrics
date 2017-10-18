@@ -1,19 +1,8 @@
 {
-    "whitePages": [
-        {"value":"input_EN.csv"},
-        {"value":"input_IT.csv"},
-        {"value":"input_FR.csv"}
-    ],
-    "blackPages": [
-    ],
+    "whitePages": ["input_EN.csv","input_IT.csv","input_FR.csv"],
+    "blackPages": [],
     "usersFilename":"users.csv",
     "databaseconfig":"../../dbaccess.json",
-	"languages": [
-        {"value": "EN"},
-        {"value": "FR"},
-        {"value": "IT"}
-    ],
-    "filename":"finale",
-    "filepath":"target/"
-    
+	"languages": ["EN","FR","IT"],
+    "filepath":"target/"    
 }

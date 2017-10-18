@@ -23,6 +23,7 @@ var totpacks;
 //FUNCTIONS
 init=function(EPcallback)
 {
+    console.log("Loading users and pages of interest....");
     epCallback=EPcallback;
     usersToAnalyze=[];
     languageIndex=0;
@@ -32,7 +33,7 @@ init=function(EPcallback)
     //load white pages
     for(var i=0;i<configData.whitePages.length;i++)
     {
-        var liner = new lineByLine(configData.filepath+configData.whitePages[i].value);
+        var liner = new lineByLine(configData.filepath+configData.whitePages[i]);
         var line;
         while((line=liner.next()))
         {
@@ -44,7 +45,7 @@ init=function(EPcallback)
     //load black pages
     for(var i=0;i<configData.blackPages.length;i++)
     {
-        var liner = new lineByLine(configData.filepath+configData.blackPages[i].value);
+        var liner = new lineByLine(configData.filepath+configData.blackPages[i]);
         var line;
         while((line=liner.next()))
         {
@@ -66,6 +67,7 @@ init=function(EPcallback)
     usersToAnalyze=shuffleArray(usersToAnalyze);
     //console.log(usersToAnalyze);
     totpacks=Math.ceil(usersToAnalyze.length/USER_PER_QUERY)*2;
+    console.log("Completed!");
     openLanguage();
     
 }
@@ -85,7 +87,7 @@ var openLanguage=function()
         epCallback();
         return;
     } 
-    var dbstring=configData.languages[languageIndex].value.toLowerCase()+"wiki_p";
+    var dbstring=configData.languages[languageIndex].toLowerCase()+"wiki_p";
     console.log("===========================================");
     console.log("Connecting to database "+dbstring+" ("+(languageIndex+1)+" of "+configData.languages.length+") and requesting for packages...");
     var clientopts=
@@ -335,7 +337,7 @@ fs.readFile('config.json', function (err, logData)
         init(function(){
             var p=0;
             results=userProcessor.values();
-            Fstream = fs.createWriteStream(configData.filepath + configData.filename + "_USERS_OUT.json", { 'flags': 'w' });
+            Fstream = fs.createWriteStream(configData.filepath + "USERS_OUT.json", { 'flags': 'w' });
             Fstream.write("[");
             while(p<results.length)
             {
