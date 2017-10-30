@@ -1,4 +1,6 @@
 {
+    "name": "wikimetrics_m1a",
+    "version": "0.2.0",
     "dependencies": {
         "request": ">=2.81.0",
         "n-readlines": ">=0.2.8"

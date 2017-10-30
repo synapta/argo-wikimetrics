@@ -5,8 +5,11 @@ This module allows to retrieve the list of the most active users regarding to a 
 
 Input
 -----
+```
+node run.js
+```
 
-You have to run EntryPoint.js, with no commandline parameters. To configurate the action of the script, edit the file *config.json*, adjusting the following parameters according to your needs:
+To configurate the action of the script, edit the file *config.json*, adjusting the following parameters according to your needs:
 
 * filename: the base name of the files containing the list of articles of interest. The files must hence be named as [FILENAME][LANGCODE].csv
 *databaseconfig: the path+filename to a json file containing the fields "user","password","host" for the connection to the wikipedia database
