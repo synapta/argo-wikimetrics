@@ -116,7 +116,7 @@ var preparePack=function()
         if((userIndex-base)>0)
             RQ+=",";
         inEvaluation[userIndex-base]=usersToAnalyze[userIndex];
-        RQ+=("'"+usersToAnalyze[userIndex]+"'");
+        RQ+=("'"+usersToAnalyze[userIndex].replace(/'/g,"''")+"'");//single quotes escaped in sql fashion
         userIndex++;
     }
     if(userIndex==base)
