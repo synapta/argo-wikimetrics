@@ -1,5 +1,5 @@
-Wikimetrics - module 1
-======================
+Wikimetrics - Relevant contributors from list of articles
+=========================================================
 
 This module allows to retrieve the list of the most active users regarding to a list of wikipedia articles in different languages.
 

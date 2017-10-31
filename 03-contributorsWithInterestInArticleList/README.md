@@ -1,5 +1,5 @@
-Wikimetrics - module 1
-======================
+Wikimetrics - Contributors interest in article list
+===================================================
 
 This module allows to, provided a list of users, to rank and classify them according to their activity regarding a list of wikipedia articles.
 
