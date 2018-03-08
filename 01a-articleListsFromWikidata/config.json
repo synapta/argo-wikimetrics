@@ -1,4 +1,5 @@
 {
 	"languages": ["EN","IT", "FR"],
-  "query": "query.sparql"
+  "query": "query.sparql",
+  "filepath":"../target/"
 }

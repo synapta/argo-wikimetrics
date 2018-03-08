@@ -3,6 +3,6 @@
     "blackPages": [],
     "usersFilename":"users.csv",
     "databaseconfig":"../../dbaccess.json",
-	  "languages": ["EN","FR","IT"],
+	"languages": ["EN","FR","IT"],
     "filepath":"target/"
 }

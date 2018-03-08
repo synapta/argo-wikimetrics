@@ -23,10 +23,10 @@ var load = function (ConfigObject) {
             return -1;
         }
 
-        if (!fs.existsSync("target")) {
-            fs.mkdirSync("target");
+        if (!fs.existsSync(configDataObj.filepath)) {
+            fs.mkdirSync(configDataObj.filepath);
         }
-        fs.writeFile("target/" + "step1.csv", body, function (err) {
+        fs.writeFile(configDataObj.filepath + "step1A.csv", body, function (err) {
             if (err) {
                 console.log("File writing failed: " + err);
                 return -1;
@@ -45,7 +45,7 @@ var recursiveAsker = function (liner, packnum, properties, streams) {
     var lineNumber = 0;
     var RQ = "";
 
-    console.log("Loading pack " + (streams["langs"][packnum]) + "...");
+    console.log("Loading pack " + (/*streams["langs"][packnum]*/packnum) + "...");
 
     while ((line = liner.next()) && lineNumber < properties.CONST_LINEGROUP) {
         RQ += ("%3C" + line.toString('ascii').split(",")[0] + "%3E%20");
@@ -115,7 +115,7 @@ var loadAll = function (ConfigObject) {
         CONST_LANG_P1: "(https://",
         CONST_LANG_P2: ".wikipedia)", //usare | tra campi
     }
-    FOUT = "target/step2_";
+    FOUT = configDataObj.filepath+"step1Ab_";
     CONST_QUERY_P2 = properties.CONST_QUERY_P2.replace(/%22/g, "\"");
 
     var streams = new Object();
@@ -135,7 +135,7 @@ var loadAll = function (ConfigObject) {
     }
     properties.CONST_QUERY_P2 = properties.CONST_QUERY_P2.replace("LANGS", LANGSTRING);
 
-    var liner = new lineByLine("target/step1.csv");
+    var liner = new lineByLine(configDataObj.filepath+"step1A.csv");
     line = liner.next(); //drop first line, contains headers
     //console.log("Point 1");
     recursiveAsker(liner, 0, properties, streams);

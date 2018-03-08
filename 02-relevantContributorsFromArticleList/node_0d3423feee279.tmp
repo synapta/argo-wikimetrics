@@ -84,6 +84,7 @@ var TraductionExecute = function (line) {
         i++;
     } while (i < traductionLines && (line = liner.next()));
     var queryX = MountQuery1(RQ);
+    console.log(queryX);
     wikiCaller.query(queryX,
         function (err, rows) {
             if (err)
