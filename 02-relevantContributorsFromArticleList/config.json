@@ -5,5 +5,6 @@
 	"languages": ["EN","IT","FR"],
     "filepath":"../target/",
     "minEditNumber":10,
-    "minEditSize":100    
+    "minEditSize":100,
+    "oldestAcceptedEdit":"190001010000"    
 }

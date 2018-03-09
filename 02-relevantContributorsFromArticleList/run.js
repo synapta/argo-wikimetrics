@@ -136,7 +136,7 @@ var MountQuery1 = function (RQ) {
 var MountQuery2 = function (RQ) {
     return `select t0.rev_user, t0.rev_user_text, t0.rev_len, ifnull(t1.rev_len,0) 
     as old_len from revision t0, revision t1 
-    where t0.rev_page in(${RQ}) and t0.rev_parent_id=t1.rev_id and t0.rev_user!=0 and t0.rev_minor_edit!=1;`;
+    where t0.rev_page in(${RQ}) and t0.rev_parent_id=t1.rev_id and t0.rev_user!=0 and t0.rev_minor_edit!=1 and t0.rev_timestamp>='${ConfigDataObj.oldestAcceptedEdit}';`;
 }
 //ENTRY POINT
 console.log("Loading Settings...")
