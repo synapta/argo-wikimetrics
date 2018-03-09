@@ -3,6 +3,7 @@
     "output":"users",
     "databaseconfig":"../../dbaccess.json",
 	"languages": ["EN","IT","FR"],
-    "filepath":"../target/"
-    
+    "filepath":"../target/",
+    "minEditNumber":10,
+    "minEditSize":100    
 }

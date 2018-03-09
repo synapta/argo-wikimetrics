@@ -160,7 +160,7 @@ fs.readFile('config.json', function (err, logData) {
             Fstream = fs.createWriteStream(ConfigdataObj.filepath + ConfigdataObj.output + ".csv", { 'flags': 'w' });
             for (Uindex = 0; Uindex < users.length; Uindex++) {
                 DU = users[Uindex];
-                if (DU.edits > 50 && DU.maxEdit > 500 && !DU.name.toLowerCase().includes("bot")) {
+                if (DU.edits > ConfigdataObj.minEditNumber && DU.maxEdit > ConfigdataObj.minEditSize && !DU.name.toLowerCase().includes("bot")) {                    
                     filteredUsers[FUindex] = DU;
                     Fstream.write(DU.name + "," + DU.edits + "," + DU.maxEdit + "\n");
                     FUindex++;
