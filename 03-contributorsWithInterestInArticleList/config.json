@@ -1,7 +1,5 @@
 {
-    "whitePages": ["input_EN.csv","input_IT.csv","input_FR.csv"],
     "blackPages": [],
-    "usersFilename":"users.csv",
     "databaseconfig":"../../dbaccess.json",
 	"languages": ["EN","FR","IT"],
     "filepath":"../target/"

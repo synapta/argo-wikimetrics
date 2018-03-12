@@ -145,6 +145,8 @@ fs.readFile('config.json', function (err, logData) {
     if (err) throw err;
     var text = logData.toString();
     ConfigdataObj = JSON.parse(text);
+    ConfigDataObj.output="users";
+    ConfigDataObj.filename="input_";
     fs.readFile(ConfigdataObj.databaseconfig, function (err, logData) {
         if (err) throw err;
         var text = logData.toString();

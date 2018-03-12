@@ -7,6 +7,7 @@ fs.readFile('config.json', function (err, logData) {
 
     var text = logData.toString();
     configDataObj = JSON.parse(text);
+    configDataObj.output="input_";
     console.log("Completed!");
     console.log("===========================================");
     var i=0;

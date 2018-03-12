@@ -319,6 +319,10 @@ fs.readFile('config.json', function (err, logData) {
     if (err) throw err;
     var text = logData.toString();
     configData=JSON.parse(text);
+    configData.usersFilename="users.csv";
+    configData.whitePages=[];
+    for(var kxy=0;kxy<configData.languages.length;kxy++)
+        configData.whitePages[kxy]="input_"+configData.languages[kxy]+".csv";
     fs.readFile(configData.databaseconfig, function (err, logData) {
         if (err) throw err;
         var text = logData.toString();
@@ -326,11 +330,11 @@ fs.readFile('config.json', function (err, logData) {
         console.log("Completed!");
         init(function() {
             var header = `user,allEdits,whiteEdits,blackEdits,blackReverted,whiteReverted,allReverted,totalCreatedPages,whiteDistinctPagesCreated,whiteDistinctPagesEdited,whiteEditsMediumLengthPerPage,numberOfLanguages\n`;
-            fs.writeFileSync(configData.filepath + 'USER_OUT.csv', header);
+            fs.writeFileSync(configData.filepath + 'result.csv', header);
 
             results=userProcessor.values();
             CSVstringify(results, function(err, output) {
-                fs.appendFileSync(configData.filepath + 'USER_OUT.csv', output);
+                fs.appendFileSync(configData.filepath + 'result.csv', output);
             });
         });
     });

@@ -1,5 +1,4 @@
 {
 	"languages": ["EN","IT", "FR"],
-    "filepath":"../target/",
-    "output":"input_"
+    "filepath":"../target/"
 }

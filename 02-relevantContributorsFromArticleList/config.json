@@ -1,6 +1,4 @@
 {
-    "filename": "input_",
-    "output":"users",
     "databaseconfig":"../../dbaccess.json",
 	"languages": ["EN","IT","FR"],
     "filepath":"../target/",
