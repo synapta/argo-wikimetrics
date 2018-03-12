@@ -226,12 +226,14 @@ var collapse=function(inEvaluation) {
 }
 
 var givePoints = function (UD, row) {
-    var currentPageKey = utf8.decode(row.page_title);
+    var currentPageKey = addslashes(utf8.decode(row.page_title));
 
     //possibileRevert?
     if(row.rev_len == row.old_len2) {
         if(whitePages.contains(currentPageKey))
+        {
             UD.whiteReverted++;
+        }
         else if(blackPages.contains(currentPageKey))
             UD.blackReverted++;
         UD.allReverted++;
@@ -274,6 +276,7 @@ var queryCompose = function (RQ) {
     and t0.rev_parent_id=t1.rev_id
     and t1.rev_parent_id=t2.rev_id
     and t3.page_namespace=0
+    and t0.rev_minor_edit!=1
     and t0.rev_user in (select user_id from user where user_name in (${RQ}))`;
 }
 
@@ -284,6 +287,7 @@ var queryCompose2 = function (RQ) {
     and t0.rev_parent_id=t1.rev_id
     and t1.rev_parent_id=0
     and t3.page_namespace=0
+    and t0.rev_minor_edit!=1
     and t0.rev_user in (select user_id from user where user_name in (${RQ}))
     union
     select t3.page_title, t0.rev_len,t0.rev_user_text, -1 as old_len, 0 as old_len2
