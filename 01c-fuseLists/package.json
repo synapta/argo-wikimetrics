@@ -1,6 +1,6 @@
 {
     "name": "wikimetrics_m1c",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "dependencies": {
         "n-readlines": ">=0.2.8",
         "hashset": ">=0.0.6"
