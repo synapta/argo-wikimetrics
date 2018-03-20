@@ -227,7 +227,6 @@ var collapse=function(inEvaluation) {
 
 var givePoints = function (UD, row) {
     var currentPageKey = addslashes(utf8.decode(row.page_title));
-
     //possibileRevert?
     if(row.rev_len == row.old_len2) {
         if(whitePages.contains(currentPageKey))
@@ -242,6 +241,8 @@ var givePoints = function (UD, row) {
         UD.totalCreatedPages++;
         if (whitePages.contains(currentPageKey)) {
             UD.whiteDistinctPagesCreated++;
+            if(UD.lastWhiteEdit==null||row.rev_timestamp>UD.lastWhiteEdit)
+                UD.lastWhiteEdit=row.rev_timestamp;
         }
     } //is simple edit
     else {
@@ -258,6 +259,8 @@ var givePoints = function (UD, row) {
                 Stats.sum+=len;
                 Stats.edit++;
             }
+            if(UD.lastWhiteEdit==null||row.rev_timestamp>UD.lastWhiteEdit)
+                UD.lastWhiteEdit=row.rev_timestamp;
             UD.articles.set(currentPageKey,Stats);
         }
         else if(blackPages.contains(currentPageKey)) {
@@ -270,7 +273,7 @@ var givePoints = function (UD, row) {
 }
 
 var queryCompose = function (RQ) {
-    return `select t3.page_title, t0.rev_len,t0.rev_user_text, ifnull(t1.rev_len,0) as old_len, ifnull(t2.rev_len,0) as old_len2
+    return `select t3.page_title, t0.rev_len,t0.rev_user_text,t0.rev_timestamp, ifnull(t1.rev_len,0) as old_len, ifnull(t2.rev_len,0) as old_len2
     from revision_userindex t0, revision t1, revision t2, page t3
 	where t0.rev_page=t3.page_id
     and t0.rev_parent_id=t1.rev_id
@@ -281,7 +284,7 @@ var queryCompose = function (RQ) {
 }
 
 var queryCompose2 = function (RQ) {
-    return `select t3.page_title, t0.rev_len,t0.rev_user_text, ifnull(t1.rev_len,0) as old_len, 0 as old_len2
+    return `select t3.page_title, t0.rev_len,t0.rev_user_text,t0.rev_timestamp, ifnull(t1.rev_len,0) as old_len, 0 as old_len2
     from revision_userindex t0, revision t1, page t3
 	where t0.rev_page=t3.page_id
     and t0.rev_parent_id=t1.rev_id
@@ -290,7 +293,7 @@ var queryCompose2 = function (RQ) {
     and t0.rev_minor_edit!=1
     and t0.rev_user in (select user_id from user where user_name in (${RQ}))
     union
-    select t3.page_title, t0.rev_len,t0.rev_user_text, -1 as old_len, 0 as old_len2
+    select t3.page_title, t0.rev_len,t0.rev_user_text,t0.rev_timestamp, -1 as old_len, 0 as old_len2
     from revision_userindex t0, page t3
 	where t0.rev_page=t3.page_id
     and t0.rev_parent_id=0
@@ -329,11 +332,9 @@ fs.readFile('config.json', function (err, logData) {
         dbAccess=JSON.parse(text);
         console.log("Completed!");
         init(function() {
-            var header = `user,allEdits,whiteEdits,blackEdits,blackReverted,whiteReverted,allReverted,totalCreatedPages,whiteDistinctPagesCreated,whiteDistinctPagesEdited,whiteEditsMediumLengthPerPage,numberOfLanguages\n`;
-            fs.writeFileSync(configData.filepath + 'result.csv', header);
-
+            var columns=['user','allEdits','whiteEdits','blackEdits','blackReverted','whiteReverted','allReverted','totalCreatedPages','whiteDistinctPagesCreated','whiteDistinctPagesEdited','whiteEditsMediumLengthPerPage','numberOfLanguages','lastWhiteEdit'];
             results=userProcessor.values();
-            CSVstringify(results, function(err, output) {
+            CSVstringify(results, {header:true,columns:columns}, function(err, output) {
                 fs.appendFileSync(configData.filepath + 'result.csv', output);
             });
         });

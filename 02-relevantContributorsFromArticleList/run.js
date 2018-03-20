@@ -79,7 +79,7 @@ var TraductionExecute = function (line) {
         if (i != 0)
             RQ += ",";
         let lineascii = line.toString('ascii');
-        lineascii = lineascii.substring(0, lineascii.length - 1)
+        lineascii = lineascii.substring(0, lineascii.length).replace('\r',"");
         RQ += ("\"" + addslashes(decodeURI(lineascii.split("wiki/")[1])) + "\"");
         i++;
     } while (i < traductionLines && (line = liner.next()));
@@ -120,6 +120,8 @@ var InsertUsersInProcessor = function (rows) {
         elen = rows[i].rev_len - rows[i].old_len;
         if (UD.maxEdit < elen)
             UD.maxEdit = elen;
+        if(elen>ConfigDataObj.minEditSize&&(UD.newestEdit==null||UD.newestEdit<rows[i].rev_timestamp))
+            UD.newestEdit=rows[i].rev_timestamp;
         userProcessor.set(key, UD);
     }
     packnum++;
@@ -134,7 +136,7 @@ var MountQuery1 = function (RQ) {
     return `select page_id from page where page_title in (${RQ}) and page_namespace=0;`;
 }
 var MountQuery2 = function (RQ) {
-    return `select t0.rev_user, t0.rev_user_text, t0.rev_len, ifnull(t1.rev_len,0) 
+    return `select t0.rev_user, t0.rev_user_text, t0.rev_len,t0.rev_timestamp, ifnull(t1.rev_len,0) 
     as old_len from revision t0, revision t1 
     where t0.rev_page in(${RQ}) and t0.rev_parent_id=t1.rev_id and t0.rev_user!=0 and t0.rev_minor_edit!=1 and t0.rev_timestamp>='${ConfigDataObj.oldestAcceptedEdit}';`;
 }
@@ -144,27 +146,32 @@ var userProcessor = new HashMap();
 fs.readFile('config.json', function (err, logData) {
     if (err) throw err;
     var text = logData.toString();
-    ConfigdataObj = JSON.parse(text);
+    ConfigDataObj = JSON.parse(text);
     ConfigDataObj.output="users";
-    ConfigDataObj.filename="input_";
-    fs.readFile(ConfigdataObj.databaseconfig, function (err, logData) {
+    if(ConfigDataObj.continueFromModule=="C")
+        ConfigDataObj.filename="input_";
+    else if(ConfigDataObj.continueFromModule=="A")
+        ConfigDataObj.filename="step1Ab_";
+    else
+        ConfigDataObj.filename="step1B_";
+    fs.readFile(ConfigDataObj.databaseconfig, function (err, logData) {
         if (err) throw err;
         var text = logData.toString();
         dbAccess = JSON.parse(text);
         console.log("Completed!");
-        extract(userProcessor, dbAccess, ConfigdataObj, function () {
+        extract(userProcessor, dbAccess, ConfigDataObj, function () {
             console.log("Process fully completed!");
             users = userProcessor.values();
             users.sort(function (a, b) { return -a.edits + b.edits });
             filteredUsers = [];
             var FUindex = 0;
             var Uindex = 0;
-            Fstream = fs.createWriteStream(ConfigdataObj.filepath + ConfigdataObj.output + ".csv", { 'flags': 'w' });
+            Fstream = fs.createWriteStream(ConfigDataObj.filepath + ConfigDataObj.output + ".csv", { 'flags': 'w' });
             for (Uindex = 0; Uindex < users.length; Uindex++) {
                 DU = users[Uindex];
-                if (DU.edits > ConfigdataObj.minEditNumber && DU.maxEdit > ConfigdataObj.minEditSize && !DU.name.toLowerCase().includes("bot")) {                    
+                if (DU.edits > ConfigDataObj.minEditNumber && DU.maxEdit > ConfigDataObj.minEditSize && !DU.name.toLowerCase().includes("bot") &&DU.newestEdit>=ConfigDataObj.latestActivity) {                    
                     filteredUsers[FUindex] = DU;
-                    Fstream.write(DU.name + "," + DU.edits + "," + DU.maxEdit + "\n");
+                    Fstream.write(DU.name + "," + DU.edits + "," + DU.maxEdit + ","+DU.newestEdit+"\n");
                     FUindex++;
                 }
             }
