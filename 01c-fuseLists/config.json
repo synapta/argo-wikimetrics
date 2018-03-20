@@ -1,4 +1,4 @@
 {
-	"languages": ["EN","IT", "FR"],
-    "filepath":"../target/"
+	"languages": ["EN","FR","IT","DE","ALS","RM"],
+  "filepath": "../target/"
 }

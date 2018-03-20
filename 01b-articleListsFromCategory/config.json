@@ -1,7 +1,7 @@
 {
-	"languages": ["EN","FR","IT"],
-	"databaseconfig":"../dbaccess.json",
-	"category": "Q1273",
+	"languages": ["EN","FR","IT","DE","ALS","RM"],
+	"databaseconfig": "../dbaccess.json",
+	"category": "Q39",
 	"maxLevel": "3",
-	"filepath":"../target/"
+	"filepath": "../target/"
 }
