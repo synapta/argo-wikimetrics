@@ -36,7 +36,7 @@ init=function(EPcallback) {
         var liner = new lineByLine(configData.filepath+configData.whitePages[i]);
         var line;
         while((line=liner.next())) {
-            toAdd=addslashes(decodeURI(line.toString('ascii').split("wiki/")[1])).replace(/\r?\n|\r/,"");
+            toAdd=addslashes(decodeURI(line.toString('utf8').split("wiki/")[1])).replace(/\r?\n|\r/,"");
             whitePages.add(toAdd);
         }
     }
@@ -46,7 +46,7 @@ init=function(EPcallback) {
         var liner = new lineByLine(configData.filepath+configData.blackPages[i]);
         var line;
         while((line=liner.next())) {
-            toAdd=addslashes(decodeURI(line.toString('ascii').split("wiki/")[1])).replace(/\r?\n|\r/,"");
+            toAdd=addslashes(decodeURI(line.toString('utf8').split("wiki/")[1])).replace(/\r?\n|\r/,"");
             blackPages.add(toAdd);
         }
     }

@@ -75,17 +75,22 @@ var TraductionLoop = function () {
 var TraductionExecute = function (line) {
     var RQ = "";
     var i = 0;
+    var flag=true;
     do {
-        if (i != 0)
+        if (i != 0&&flag)
             RQ += ",";
-        let lineascii = line.toString('ascii');
+        else
+            flag=true;
+        let lineascii = line.toString('utf8');
         lineascii = lineascii.substring(0, lineascii.length).replace('\r',"");
         try
         {
         RQ += ("\"" + addslashes(decodeURI(lineascii.split("wiki/")[1])) + "\"");
         }
         catch(err)
-        {}
+        {
+            flag=false;
+        }
         i++;
     } while (i < traductionLines && (line = liner.next()));
     var queryX = MountQuery1(RQ);
