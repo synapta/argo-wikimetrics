@@ -1,5 +1,5 @@
 {
-    "databaseconfig":"../../dbaccess.json",
+    "databaseconfig":"../dbaccess.json",
 	"languages": ["IT"],
     "filepath":"../target/",
     "minEditNumber":1,
