@@ -55,6 +55,7 @@ init=function(EPcallback) {
     var liner = new lineByLine(configData.filepath+configData.usersFilename);
     var line;
     var i=0;
+    liner.next();//skip header
     while((line=liner.next())) {
         usersToAnalyze[i]=(line.toString('utf8').split(",")[0]);
         i++;

@@ -80,7 +80,12 @@ var TraductionExecute = function (line) {
             RQ += ",";
         let lineascii = line.toString('ascii');
         lineascii = lineascii.substring(0, lineascii.length).replace('\r',"");
+        try
+        {
         RQ += ("\"" + addslashes(decodeURI(lineascii.split("wiki/")[1])) + "\"");
+        }
+        catch(err)
+        {}
         i++;
     } while (i < traductionLines && (line = liner.next()));
     var queryX = MountQuery1(RQ);
@@ -167,6 +172,7 @@ fs.readFile('config.json', function (err, logData) {
             var FUindex = 0;
             var Uindex = 0;
             Fstream = fs.createWriteStream(ConfigDataObj.filepath + ConfigDataObj.output + ".csv", { 'flags': 'w' });
+            Fstream.write("Username,NumberOfEditsOnInput,MaxEditOnIput,LastActivityOnInput\n");
             for (Uindex = 0; Uindex < users.length; Uindex++) {
                 DU = users[Uindex];
                 if (DU.edits > ConfigDataObj.minEditNumber && DU.maxEdit > ConfigDataObj.minEditSize && !DU.name.toLowerCase().includes("bot") &&DU.newestEdit>=ConfigDataObj.latestActivity) {                    
