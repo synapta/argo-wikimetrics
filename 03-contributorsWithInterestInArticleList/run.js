@@ -249,7 +249,8 @@ var givePoints = function (UD, row) {
     else {
         if (whitePages.contains(currentPageKey)) {
             UD.whiteEdits++;
-            var Stats = UD.articles.get(currentPageKey);
+            var uKey=currentPageKey+configData.languages[languageIndex];
+            var Stats = UD.articles.get(uKey);
             if (Stats==null) {
                 Stats=new Object();
                 Stats.sum=0;
@@ -262,7 +263,7 @@ var givePoints = function (UD, row) {
             }
             if(UD.lastWhiteEdit==null||row.rev_timestamp>UD.lastWhiteEdit)
                 UD.lastWhiteEdit=row.rev_timestamp;
-            UD.articles.set(currentPageKey,Stats);
+            UD.articles.set(uKey,Stats);
         }
         else if(blackPages.contains(currentPageKey)) {
             UD.blackEdits++;
