@@ -157,13 +157,16 @@ fs.readFile('config.json', function (err, logData) {
     if (err) throw err;
     var text = logData.toString();
     ConfigDataObj = JSON.parse(text);
-    ConfigDataObj.output="users";
-    if(ConfigDataObj.continueFromModule=="C")
-        ConfigDataObj.filename="input_";
+    ConfigDataObj.output="2/users";
+    if(ConfigDataObj.continueFromModule=="B")
+        ConfigDataObj.filename="1B/";
     else if(ConfigDataObj.continueFromModule=="A")
-        ConfigDataObj.filename="step1Ab_";
+        ConfigDataObj.filename="1A/";
     else
-        ConfigDataObj.filename="step1B_";
+        ConfigDataObj.filename="1C/";
+    if (!fs.existsSync(configDataObj.filepath+"2/")) {
+        fs.mkdirSync(configDataObj.filepath+"2/");
+        }
     fs.readFile(ConfigDataObj.databaseconfig, function (err, logData) {
         if (err) throw err;
         var text = logData.toString();

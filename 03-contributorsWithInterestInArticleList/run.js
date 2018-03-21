@@ -36,8 +36,13 @@ init=function(EPcallback) {
         var liner = new lineByLine(configData.filepath+configData.whitePages[i]);
         var line;
         while((line=liner.next())) {
+            try
+            {                
             toAdd=addslashes(decodeURI(line.toString('utf8').split("wiki/")[1])).replace(/\r?\n|\r/,"");
             whitePages.add(toAdd);
+            }
+            catch(err)
+            {}
         }
     }
 
@@ -46,8 +51,13 @@ init=function(EPcallback) {
         var liner = new lineByLine(configData.filepath+configData.blackPages[i]);
         var line;
         while((line=liner.next())) {
+            try
+            {
             toAdd=addslashes(decodeURI(line.toString('utf8').split("wiki/")[1])).replace(/\r?\n|\r/,"");
             blackPages.add(toAdd);
+            }
+            catch(err)
+            {}
         }
     }
 
@@ -324,10 +334,14 @@ fs.readFile('config.json', function (err, logData) {
     if (err) throw err;
     var text = logData.toString();
     configData=JSON.parse(text);
-    configData.usersFilename="users.csv";
+    configData.usersFilename="2/users.csv";
     configData.whitePages=[];
+    if (!fs.existsSync(configDataObj.filepath+"3/")) 
+    {
+        fs.mkdirSync(configDataObj.filepath+"3/");
+    }
     for(var kxy=0;kxy<configData.languages.length;kxy++)
-        configData.whitePages[kxy]="input_"+configData.languages[kxy]+".csv";
+        configData.whitePages[kxy]="1C/"+configData.languages[kxy]+".csv";
     fs.readFile(configData.databaseconfig, function (err, logData) {
         if (err) throw err;
         var text = logData.toString();
@@ -337,7 +351,7 @@ fs.readFile('config.json', function (err, logData) {
             var columns=['user','allEdits','whiteEdits','blackEdits','blackReverted','whiteReverted','allReverted','totalCreatedPages','whiteDistinctPagesCreated','whiteDistinctPagesEdited','whiteEditsMediumLengthPerPage','numberOfLanguages','lastWhiteEdit'];
             results=userProcessor.values();
             CSVstringify(results, {header:true,columns:columns}, function(err, output) {
-                fs.appendFileSync(configData.filepath + 'result.csv', output);
+                fs.appendFileSync(configData.filepath + '3/users.csv', output);
             });
         });
     });

@@ -7,7 +7,10 @@ fs.readFile('config.json', function (err, logData) {
 
     var text = logData.toString();
     configDataObj = JSON.parse(text);
-    configDataObj.output="input_";
+    configDataObj.output="1C/";
+    if (!fs.existsSync(configDataObj.filepath+configDataObj.output)){
+        fs.mkdirSync(configDataObj.filepath+configDataObj.output);
+    }
     console.log("Completed!");
     console.log("===========================================");
     var i=0;
@@ -15,14 +18,14 @@ fs.readFile('config.json', function (err, logData) {
     while(i<configDataObj.languages.length)
     {
         console.log("Fusing "+configDataObj.languages[i]+"...");
-        var liner = new lineByLine(configDataObj.filepath+"step1Ab_"+configDataObj.languages[i]+".csv");
+        var liner = new lineByLine(configDataObj.filepath+"1A/"+configDataObj.languages[i]+".csv");
         var line;
         list=new HashSet();
         while(line = liner.next())
         {
             list.add(line.toString());
         }
-        var liner = new lineByLine(configDataObj.filepath+"step1B_"+configDataObj.languages[i]+".csv");
+        var liner = new lineByLine(configDataObj.filepath+"1B/"+configDataObj.languages[i]+".csv");
         while(line = liner.next())
         {
             list.add(line.toString());

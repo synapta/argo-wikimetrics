@@ -26,7 +26,7 @@ var load = function (ConfigObject) {
         if (!fs.existsSync(configDataObj.filepath)) {
             fs.mkdirSync(configDataObj.filepath);
         }
-        fs.writeFile(configDataObj.filepath + "step1A.csv", body, function (err) {
+        fs.writeFile(configDataObj.filepath + "items.csv", body, function (err) {
             if (err) {
                 console.log("File writing failed: " + err);
                 return -1;
@@ -115,7 +115,9 @@ var loadAll = function (ConfigObject) {
         CONST_LANG_P1: "(https://",
         CONST_LANG_P2: ".wikipedia)", //usare | tra campi
     }
-    FOUT = configDataObj.filepath+"step1Ab_";
+   
+    FOUT = configDataObj.filepath;
+    
     CONST_QUERY_P2 = properties.CONST_QUERY_P2.replace(/%22/g, "\"");
 
     var streams = new Object();
@@ -135,7 +137,7 @@ var loadAll = function (ConfigObject) {
     }
     properties.CONST_QUERY_P2 = properties.CONST_QUERY_P2.replace("LANGS", LANGSTRING);
 
-    var liner = new lineByLine(configDataObj.filepath+"step1A.csv");
+    var liner = new lineByLine(configDataObj.filepath+"items.csv");
     line = liner.next(); //drop first line, contains headers
     //console.log("Point 1");
     recursiveAsker(liner, 0, properties, streams);
@@ -150,6 +152,6 @@ fs.readFile('config.json', function (err, logData) {
     configDataObj = JSON.parse(text);
     console.log("Completed!");
     console.log("===========================================");
-
+    configDataObj.filepath+="1A/"
     load(configDataObj);
 });
