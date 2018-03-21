@@ -336,9 +336,9 @@ fs.readFile('config.json', function (err, logData) {
     configData=JSON.parse(text);
     configData.usersFilename="2/users.csv";
     configData.whitePages=[];
-    if (!fs.existsSync(configDataObj.filepath+"3/")) 
+    if (!fs.existsSync(configData.filepath+"3/")) 
     {
-        fs.mkdirSync(configDataObj.filepath+"3/");
+        fs.mkdirSync(configData.filepath+"3/");
     }
     for(var kxy=0;kxy<configData.languages.length;kxy++)
         configData.whitePages[kxy]="1C/"+configData.languages[kxy]+".csv";
