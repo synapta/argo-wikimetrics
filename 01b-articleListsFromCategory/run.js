@@ -133,7 +133,7 @@ var GetLevelChilds = function () {
     });
 }
 var GetPages = function () {
-    var fname = configDataObj.filepath+"step1B_" + Categories[wikiIndex].wiki.toUpperCase() + ".csv";
+    var fname = configDataObj.filepath + Categories[wikiIndex].wiki.toUpperCase() + ".csv";
     var fwiki = "https://" + Categories[wikiIndex].wiki + ".wikipedia.org/wiki/";
     var toSave = "";
     for (var t = 0; t < Pages.length; t++)
@@ -173,6 +173,7 @@ fs.readFile('config.json', function (err, logData) {
         dbAccess = JSON.parse(text);
         console.log("Completed!");
         console.log("===========================================");
+        configDataObj.filepath+="1B/";
         if (!fs.existsSync(configDataObj.filepath)) {
             fs.mkdirSync(configDataObj.filepath);
         }
