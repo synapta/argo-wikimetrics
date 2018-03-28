@@ -156,7 +156,7 @@ var sendPack=function(RQ,inEvaluation) {
 }
 
 var openRows=function(rows,inEvaluation) {
-    for(var i=1;i<rows.length;i++) {
+    for(var i=0;i<rows.length;i++) {
         key=utf8.decode(rows[i].rev_user_text);
 
         if((UD=userProcessor.get(key))==null) {
@@ -280,7 +280,7 @@ var givePoints = function (UD, row) {
         }
     }
     UD.allEdits++;
-
+   
     return UD;
 }
 
