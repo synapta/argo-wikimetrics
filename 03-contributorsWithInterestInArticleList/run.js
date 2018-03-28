@@ -7,7 +7,7 @@ var utf8 = require('utf8');
 var fs=require('fs');
 var CSVstringify = require('csv-stringify');
 //CONSTANTS
-const USER_PER_QUERY=1;
+const USER_PER_QUERY=2;
 //GLOBALS
 var configData;
 var dbAccess;
