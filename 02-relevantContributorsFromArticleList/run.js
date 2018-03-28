@@ -164,8 +164,8 @@ fs.readFile('config.json', function (err, logData) {
         ConfigDataObj.filename="1A/";
     else
         ConfigDataObj.filename="1C/";
-    if (!fs.existsSync(configDataObj.filepath+"2/")) {
-        fs.mkdirSync(configDataObj.filepath+"2/");
+    if (!fs.existsSync(ConfigDataObj.filepath+"2/")) {
+        fs.mkdirSync(ConfigDataObj.filepath+"2/");
         }
     fs.readFile(ConfigDataObj.databaseconfig, function (err, logData) {
         if (err) throw err;

@@ -1,6 +1,6 @@
 {
     "blackPages": [],
     "databaseconfig":"../../dbaccess.json",
-	"languages": ["EN","FR","IT"],
+	"languages": ["DE","IT"],
     "filepath":"../target/"
 }

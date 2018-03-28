@@ -58,8 +58,9 @@ var ExtractCategoryNames = function (body) {
     for (var i = 1; i < lines.length && lines[i].length > 3; i++)//first line contains headers, may contain dirty \n at the end
     {
         Categories[i - 1] = new Object();
-        Categories[i - 1].value = lines[i].split('wiki/')[1].replace('\r', '');
+        Categories[i - 1].value = lines[i].split('wiki/')[1].replace('\r', '').split(":");
         Categories[i - 1].wiki = lines[i].split('//')[1].split(".")[0];
+        Categories[i-1].value=decodeURI(Categories[i-1].value[Categories[i-1].value.length-1]);
         outString += (Categories[i - 1].value + "(" + Categories[i - 1].wiki + ") ");
     }
     console.log("Completed!\nCorresponding names are: " + outString);

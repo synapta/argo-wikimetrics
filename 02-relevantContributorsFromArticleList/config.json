@@ -1,10 +1,10 @@
 {
     "databaseconfig":"../../dbaccess.json",
-	"languages": ["IT"],
+	"languages": ["IT","DE"],
     "filepath":"../target/",
-    "minEditNumber":1,
-    "minEditSize":5,
+    "minEditNumber":5,
+    "minEditSize":500,
     "oldestAcceptedEdit":"190001010000",
     "continueFromModule":"C",
-    "latestActivity":"200901010000" 
+    "latestActivity":"201501010000" 
 }
